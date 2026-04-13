@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="islabonita - e-commerce de ropa knitted con diseño artesanal, elegante y contemporáneo."
+  />
+  <title>islabonita</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- HEADER GENERAL -->
+  <header class="site-header">
+
+    <!-- Barra superior / mensaje de marca -->
+    <div class="topbar">
+      <p class="topbar__text">Knitted essentials · diseño artesanal · edición cuidada</p>
+    </div>
+
+    <!-- Header principal -->
+    <div class="header-main">
+
+      <!-- Logo -->
+    <a href="#" class="logo">
+      <div class="brand">
+        <span class="brand-main">islabonita</span>
+        <span class="brand-sub">STUDIO</span>
+      </div>
+    </a>
+
+      <!-- Botón menú mobile -->
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Abrir menú de navegación"
+        aria-expanded="false"
+        aria-controls="primary-navigation"
+      >
+        ☰
+      </button>
+
+      <!-- Navegación principal -->
+      <nav class="main-nav" aria-label="Navegación principal" id="primary-navigation">
+        <ul class="main-nav__list">
+          <li class="main-nav__item"><a href="#contact" class="main-nav__link">Contact</a></li>
+          <li class="main-nav__item"><a href="#about" class="main-nav__link">Brand</a></li>
+          <li class="main-nav__item"><a href="#home" class="main-nav__link">Home</a></li>
+        </ul>
+      </nav>
+
+      <!-- Acciones del usuario -->
+      <div class="header-actions" aria-label="Acciones del usuario">
+        <a href="#search" class="header-actions__link" aria-label="Buscar productos">Search</a>
+        <a href="#account" class="header-actions__link" aria-label="Ingresar a tu cuenta">Account</a>
+        <a href="#cart" class="header-actions__link cart-link" aria-label="Ver carrito">
+          Cart <span class="cart-count">(0)</span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Navegación secundaria / categorías destacadas -->
+    <nav class="sub-nav" aria-label="Categorías destacadas">
+      <ul class="sub-nav__list">
+        <li><a href="#sweaters" class="sub-nav__link">Sweaters</a></li>
+        <li><a href="#tops" class="sub-nav__link">Tops</a></li>
+        <li><a href="#bottoms" class="sub-nav__link">Bottoms</a></li>
+        <li><a href="#sets" class="sub-nav__link">Sets</a></li>
+        <li><a href="#new-in" class="sub-nav__link">New In</a></li>
+        <li><a href="#gift-guide" class="sub-nav__link">Gift Guide</a></li>
+      </ul>
+    </nav>
+
+  </header>
+
+<!-- HERO -->
+<main>
+  <section class="hero" id="home" aria-label="Presentación principal de islabonita">
+    <div class="hero__content">
+      <p class="hero__eyebrow">New Collection</p>
+      <h1 class="hero__title">Knitted pieces made to feel timeless.</h1>
+      <p class="hero__text">
+        Descubrí sweaters, tops, bottoms y sets pensados desde la textura,
+        la calma y la elegancia de lo esencial.
+      </p>
+
+      <div class="hero__actions">
+        <a href="#new-in" class="hero__button hero__button--primary">Shop New In</a>
+        <a href="#about" class="hero__button hero__button--secondary">Discover the Brand</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- CATEGORÍAS (body) -->
+<section class="categories section" id="categories">
+  <div class="container">
+
+    <div class="section-header">
+      <h2>Categorías</h2>
+      <p>Explorá la colección por tipo de prenda</p>
+    </div>
+
+    <div class="categories-grid">
+
+      <article class="category-card">
+        <h3>Sweaters</h3>
+        <p>Prendas tejidas protagonistas</p>
+      </article>
+
+      <article class="category-card">
+        <h3>Bottoms</h3>
+        <p>Pantalones y faldas base</p>
+      </article>
+
+      <article class="category-card">
+        <h3>Tops</h3>
+        <p>Capas livianas y versátiles</p>
+      </article>
+
+      <article class="category-card">
+        <h3>Sets</h3>
+        <p>Conjuntos combinados</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTOS DESTACADOS (body)-->
+<section class="selection section" id="featured">
+  <div class="container selection-layout">
+
+    <!-- Columna izquierda -->
+    <div class="selection-intro">
+      <p class="section-tag">Edit selección</p>
+      <h2>Nuestra selección</h2>
+      <p>
+        Explorá una curaduría de piezas tejidas con impronta artesanal,
+        siluetas elegantes y una estética atemporal pensada para destacar.
+      </p>
+
+      <a href="#" class="selection-link">Ver más</a>
+    </div>
+
+    <!-- Columna derecha -->
+    <div class="selection-carousel-wrapper">
+      <div class="selection-carousel">
+
+        <article class="selection-card">
+          <div class="selection-image placeholder-one"></div>
+          <div class="selection-info">
+            <div class="selection-row">
+              <h3>Navy Braided Sweater</h3>
+              <p class="selection-price">$118.000</p>
+            </div>
+            <p class="selection-subtext">Precio sin impuestos nacionales: $97.520</p>
+          </div>
+        </article>
+
+        <article class="selection-card">
+          <div class="selection-image placeholder-two"></div>
+          <div class="selection-info">
+            <div class="selection-row">
+              <h3>Chocolate Knit Set</h3>
+              <p class="selection-price">$164.000</p>
+            </div>
+            <p class="selection-subtext">Precio sin impuestos nacionales: $135.537</p>
+          </div>
+        </article>
+
+        <article class="selection-card">
+          <div class="selection-image placeholder-three"></div>
+          <div class="selection-info">
+            <div class="selection-row">
+              <h3>Soft Ribbed Top</h3>
+              <p class="selection-price">$79.000</p>
+            </div>
+            <p class="selection-subtext">Precio sin impuestos nacionales: $65.289</p>
+          </div>
+        </article>
+
+        <article class="selection-card">
+          <div class="selection-image placeholder-four"></div>
+          <div class="selection-info">
+            <div class="selection-row">
+              <h3>Tailored Knit Bottom</h3>
+              <p class="selection-price">$96.000</p>
+            </div>
+            <p class="selection-subtext">Precio sin impuestos nacionales: $79.339</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================
+     FOOTER
+========================= -->
+<footer class="site-footer">
+  <div class="container footer-container">
+
+    <!-- Marca -->
+    <div class="footer-brand">
+      <h2>islabonita</h2>
+      <p>
+        En Islabonita, nuestra misión va más allá de la creación de textiles y objetos artesanales de alta calidad. Somos una firma de lujo que se enorgullece en tejer una conexión profunda entre el respeto por la tradición, la excelencia en el diseño y el impacto social positivo. Nos esforzamos por marcar una diferencia significativa en la vida cotidiana de las comunidades con las que trabajamos y en el entorno que nos rodea.
+      </p>
+    </div>
+
+    <!-- Navegación -->
+    <div class="footer-links">
+      <h3>Categorías</h3>
+      <ul>
+        <li><a href="#">Sweaters</a></li>
+        <li><a href="#">Bottoms</a></li>
+        <li><a href="#">Tops</a></li>
+        <li><a href="#">Sets</a></li>
+      </ul>
+    </div>
+
+    <!-- Ayuda -->
+    <div class="footer-links">
+      <h3>Ayuda</h3>
+      <ul>
+        <li><a href="#">Envíos</a></li>
+        <li><a href="#">Cambios y devoluciones</a></li>
+        <li><a href="#">Preguntas frecuentes</a></li>
+      </ul>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="footer-newsletter">
+      <h3>Newsletter</h3>
+      <p>Suscribite para recibir novedades exclusivas</p>
+
+      <form class="newsletter-form">
+        <input type="email" placeholder="Tu email" required />
+        <button type="submit">Suscribirme</button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Línea inferior -->
+  <div class="footer-bottom">
+    <p>© 2026 islabonita. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>
