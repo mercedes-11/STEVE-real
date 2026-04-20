@@ -21,7 +21,7 @@ html {
 body {
   font-family: Georgia, "Times New Roman", serif;
   background-color: #faf7f1;
-  color: #110d0c;
+  color: #261c1a;
   line-height: 1.5;
 }
 
@@ -51,7 +51,7 @@ a {
 
 /* TOPBAR */
 .topbar {
-  background-color: #110d0c;
+  background-color: #261c1a;
   color: #faf7f1;
   text-align: center;
   padding: 0.75rem 1rem;
@@ -79,7 +79,7 @@ a {
 /* LOGO */
 .logo {
   text-decoration: none;
-  color: #110d0c;
+  color: #261c1a;
   justify-self: start;
 }
 
@@ -96,14 +96,14 @@ a {
   font-weight: 400;
   letter-spacing: -0.11em;
   text-transform: lowercase;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 .brand-sub {
   font-size: 0.7rem;
   letter-spacing: 0.5em;
   margin-top: 0.4rem;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 /* NAV PRINCIPAL */
@@ -265,7 +265,7 @@ a {
 .hero__title {
   font-size: 3.4rem;
   line-height: 1.1;
-  color: #110d0c;
+  color: #261c1a;
   margin-bottom: 1.25rem;
   max-width: 10ch;
 }
@@ -296,24 +296,24 @@ a {
 }
 
 .hero__button--primary {
-  background-color: #110d0c;
+  background-color: #261c1a;
   color: #faf7f1;
-  border-color: #110d0c;
+  border-color: #261c1a;
 }
 
 .hero__button--primary:hover {
   background-color: transparent;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 .hero__button--secondary {
   background-color: transparent;
-  color: #110d0c;
-  border-color: #110d0c;
+  color: #261c1a;
+  border-color: #261c1a;
 }
 
 .hero__button--secondary:hover {
-  background-color: #110d0c;
+  background-color: #261c1a;
   color: #faf7f1;
 }
 
@@ -466,7 +466,7 @@ a {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: #110d0c;
+  color: #261c1a;
   margin-bottom: 0.9rem;
 }
 
@@ -474,11 +474,11 @@ a {
   font-size: clamp(1.7rem, 3vw, 2.45rem);
   line-height: 1.1;
   margin-bottom: 1rem;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 .selection-intro p {
-  color: #110d0c;
+  color: #261c1a;
   margin-bottom: 1.6rem;
   max-width: 30ch;
   text-align: center;
@@ -490,9 +490,9 @@ a {
   justify-content: center;
   min-width: 150px;
   padding: 0.9rem 1.3rem;
-  border: 1px solid #110d0c;
+  border: 1px solid #261c1a;
   background-color: transparent;
-  color: #110d0c;
+  color: #261c1a;
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -501,7 +501,7 @@ a {
 }
 
 .selection-link:hover {
-  background-color: #110d0c;
+  background-color: #261c1a;
   color: #faf7f1;
 }
 
@@ -543,7 +543,7 @@ a {
 
 .selection-info {
   padding-right: 0.5rem;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 .selection-row {
@@ -557,17 +557,17 @@ a {
 .selection-row h3 {
   font-size: 1.2rem;
   font-weight: 500;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 .selection-price {
   font-weight: 600;
   white-space: nowrap;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 .selection-subtext {
-  color: #110d0c;
+  color: #261c1a;
   font-size: 0.95rem;
 }
 
@@ -622,7 +622,7 @@ a {
 
 /* FOOTER */
 .site-footer {
-  background-color: #110d0c;
+  background-color: #261c1a;
   color: #faf7f1;
   padding-top: 4.5rem;
   margin-top: 4rem;
