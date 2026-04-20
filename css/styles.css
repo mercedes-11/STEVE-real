@@ -1,12 +1,12 @@
 /* FUENTES */
 @font-face {
-  font-family: 'Sirenik';
-  src: url('../fonts/Sirenik-Regular.otf') format('opentype');
+  font-family: "Sirenik";
+  src: url("../fonts/Sirenik-Regular.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
 
-/* RESET BÁSICO */
+/* RESET BASICO */
 * {
   margin: 0;
   padding: 0;
@@ -23,11 +23,6 @@ body {
   background-color: #faf7f1;
   color: #261c1a;
   line-height: 1.5;
-}
-
-img {
-  max-width: 100%;
-  display: block;
 }
 
 a {
@@ -91,7 +86,7 @@ a {
 }
 
 .brand-main {
-  font-family: 'Sirenik', serif;
+  font-family: "Sirenik", serif;
   font-size: 3.5rem;
   font-weight: 400;
   letter-spacing: -0.11em;
@@ -179,59 +174,6 @@ a {
   color: #2a2f42;
 }
 
-/* SUBNAV */
-.sub-nav {
-  border-top: 1px solid rgba(44, 35, 26, 0.1);
-  border-bottom: 1px solid rgba(44, 35, 26, 0.1);
-  background-color: #faf7f1;
-}
-
-.sub-nav__list {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0.9rem 2rem;
-  list-style: none;
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.sub-nav__link {
-  text-decoration: none;
-  color: #2c231a;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  position: relative;
-  transition: color 0.3s ease;
-}
-
-.sub-nav__link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -0.3rem;
-  width: 0;
-  height: 1px;
-  background-color: #2c231a;
-  transition: width 0.3s ease;
-}
-
-.sub-nav__link:hover::after {
-  width: 100%;
-}
-
-/* BOTÓN MENÚ MOBILE */
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  color: #2a2f42;
-  cursor: pointer;
-}
-
 /* HERO */
 .hero {
   min-height: 85vh;
@@ -317,130 +259,11 @@ a {
   color: #faf7f1;
 }
 
-/* RESPONSIVE del hero (adaptacion a celular) */
-@media (max-width: 992px) {
-  .header-main {
-    grid-template-columns: auto 1fr auto;
-  }
-
-  .main-nav {
-    display: none;
-  }
-
-  .menu-toggle {
-    display: block;
-    justify-self: start;
-  }
-
-  .header-actions {
-    gap: 0.8rem;
-  }
-
-  .header-actions__link {
-    font-size: 0.8rem;
-  }
-
-  .hero {
-    min-height: 75vh;
-    padding: 3rem 1.5rem;
-    background-position: center;
-  }
-
-  .hero__content {
-    margin-left: 0;
-    max-width: 100%;
-    padding: 2rem;
-  }
-
-  .hero__title {
-    font-size: 2.7rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .topbar {
-    font-size: 0.65rem;
-    padding: 0.6rem 0.8rem;
-  }
-
-  .header-main {
-    padding: 1rem;
-  }
-
-  .sub-nav {
-    display: none;
-  }
-
-  .hero {
-    min-height: 70vh;
-    padding: 2rem 1rem;
-  }
-
-  .hero__content {
-    padding: 1.5rem;
-  }
-
-  .hero__title {
-    font-size: 2rem;
-    max-width: 12ch;
-  }
-
-  .hero__text {
-    font-size: 0.95rem;
-  }
-
-  .hero__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hero__button {
-    text-align: center;
-  }
-}
-
-/* CATEGORÍAS (body) */
 .section {
   padding: 4rem 0;
 }
 
-.section-header {
-  margin-bottom: 2rem;
-}
-
-.section-header h2 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.section-header p {
-  color: #6c645d;
-}
-
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-}
-
-.category-card {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 2rem;
-  border: 1px solid #ddd4cc;
-  transition: transform 0.3s ease;
-}
-
-.category-card:hover {
-  transform: translateY(-5px);
-}
-
-.category-card h3 {
-  color: #1a1b63;
-  margin-bottom: 0.5rem;
-}
-
-/* PRODUCTOS (body) */
+/* PRODUCTOS */
 .selection {
   background-color: #faf7f1;
 }
@@ -594,10 +417,6 @@ a {
   .selection-image {
     height: 500px;
   }
-
-  .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 @media (max-width: 640px) {
@@ -613,10 +432,6 @@ a {
   .selection-row {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .categories-grid {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -679,7 +494,6 @@ a {
   color: #faf7f1;
 }
 
-/* NEWSLETTER estilo screenshot */
 .newsletter-form {
   display: flex;
   align-items: center;
@@ -722,7 +536,6 @@ a {
   color: #483e35;
 }
 
-/* Línea inferior */
 .footer-bottom {
   border-top: 1px solid rgba(250, 247, 241, 0.18);
   margin-top: 0;
@@ -732,7 +545,7 @@ a {
   color: #faf7f1;
 }
 
-/* RESPONSIVE (del footer) */
+/* RESPONSIVE FOOTER */
 @media (max-width: 1024px) {
   .footer-container {
     width: min(1400px, calc(100% - 4rem));
