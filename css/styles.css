@@ -452,8 +452,8 @@ a {
 .selection-add-btn {
   margin-top: 1rem;
   width: 100%;
-  border: 1px solid #110d0c;
-  background-color: #110d0c;
+  border: 1px solid #261c1a;
+  background-color: #261c1a;
   color: #faf7f1;
   padding: 0.9rem 1rem;
   cursor: pointer;
@@ -465,7 +465,7 @@ a {
 
 .selection-add-btn:hover {
   background-color: transparent;
-  color: #110d0c;
+  color: #261c1a;
 }
 
 /* RESPONSIVE */
