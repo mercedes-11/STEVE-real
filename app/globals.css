@@ -182,7 +182,7 @@ a {
   padding: 4rem 2rem;
   background-image:
     linear-gradient(rgba(250, 247, 241, 0.42), rgba(250, 247, 241, 0.42)),
-    url("../assets/hero-knitted.jpg");
+    url("/assets/hero-knitted.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

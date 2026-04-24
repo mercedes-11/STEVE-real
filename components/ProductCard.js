@@ -17,7 +17,11 @@ export default function ProductCard({ product, grid = false, detail = false }) {
   return (
     <article className={cardClassName}>
       <Link href={`/productos/${product.id}`} className="selection-card__media">
-        <div className={`selection-image ${product.imageClass}`} aria-label={product.name}></div>
+        <img
+          src={product.image}
+          alt={product.name}
+          className="selection-image"
+        />
       </Link>
 
       <div className="selection-info">
