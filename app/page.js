@@ -1,6 +1,8 @@
+import Link from "next/link";
 import ProductCard from "../components/ProductCard";
+import { products } from "../data/products";
 
-export default function HomePage({ products, onAddToCart }) {
+export default function HomePage() {
   return (
     <>
       <main>
@@ -14,12 +16,12 @@ export default function HomePage({ products, onAddToCart }) {
             </p>
 
             <div className="hero__actions">
-              <a href="#featured" className="hero__button hero__button--primary">
+              <Link href="/productos" className="hero__button hero__button--primary">
                 Shop New In
-              </a>
-              <a href="#featured" className="hero__button hero__button--secondary">
+              </Link>
+              <Link href="/productos" className="hero__button hero__button--secondary">
                 Discover the Brand
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -35,19 +37,15 @@ export default function HomePage({ products, onAddToCart }) {
               una estética atemporal pensada para destacar.
             </p>
 
-            <a href="sweaters.html" className="selection-link">
+            <Link href="/productos" className="selection-link">
               Ver más
-            </a>
+            </Link>
           </div>
 
           <div className="selection-carousel-wrapper">
             <div className="selection-carousel">
               {products.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={onAddToCart}
-                />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>

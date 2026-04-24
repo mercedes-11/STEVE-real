@@ -1,4 +1,11 @@
-export default function Header({ cartItemsCount, onOpenCart }) {
+"use client";
+
+import Link from "next/link";
+import { useCart } from "./Cart";
+
+export default function Header() {
+  const { cartItemsCount } = useCart();
+
   return (
     <header className="site-header">
       <div className="topbar">
@@ -6,37 +13,32 @@ export default function Header({ cartItemsCount, onOpenCart }) {
       </div>
 
       <div className="header-main">
-        <a href="index.html" className="logo" aria-label="Volver al inicio">
+        <Link href="/" className="logo" aria-label="Volver al inicio">
           <div className="brand">
             <span className="brand-main">islabonita</span>
             <span className="brand-sub">STUDIO</span>
           </div>
-        </a>
+        </Link>
 
-        <nav className="main-nav" aria-label="Navegación principal" id="primary-navigation">
+        <nav className="main-nav" aria-label="Navegación principal">
           <ul className="main-nav__list">
             <li className="main-nav__item">
-              <a href="sweaters.html" className="main-nav__link">
-                Sweaters
-              </a>
+              <Link href="/productos" className="main-nav__link">
+                Productos
+              </Link>
             </li>
             <li className="main-nav__item">
-              <a href="index.html" className="main-nav__link">
+              <Link href="/" className="main-nav__link">
                 Home
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>
 
         <div className="header-actions" aria-label="Acciones del usuario">
-          <a
-            href="#cart"
-            className="header-actions__link cart-link"
-            aria-label="Ver carrito"
-            onClick={onOpenCart}
-          >
+          <Link href="/carrito" className="header-actions__link cart-link" aria-label="Ver carrito">
             Cart <span className="cart-count">({cartItemsCount})</span>
-          </a>
+          </Link>
         </div>
       </div>
     </header>
