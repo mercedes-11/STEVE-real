@@ -1,10 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "./Cart";
+import { useAuth } from "@/lib/useAuth";
 
 export default function Header() {
   const { cartItemsCount } = useCart();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
 
   return (
     <header className="site-header">
@@ -36,6 +45,30 @@ export default function Header() {
         </nav>
 
         <div className="header-actions" aria-label="Acciones del usuario">
+          {user ? (
+            <>
+              <span style={{ marginRight: '15px', fontSize: '0.9em', color: '#666' }}>
+                Hola, {user.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  color: '#000',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  marginRight: '15px',
+                }}
+              >
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <Link href="/auth/login" className="header-actions__link">
+              Iniciar sesión
+            </Link>
+          )}
           <Link href="/carrito" className="header-actions__link cart-link" aria-label="Ver carrito">
             Cart <span className="cart-count">({cartItemsCount})</span>
           </Link>
