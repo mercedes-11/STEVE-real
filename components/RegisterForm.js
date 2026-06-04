@@ -135,11 +135,11 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <label htmlFor="direccion">Direccion:</label>
+          <label htmlFor="direccion">Dirección:</label>
           <input
             id="direccion"
             type="text"
-            placeholder="Tu direccion"
+            placeholder="Tu dirección"
             value={direccion}
             onChange={(e) => setDireccion(e.target.value)}
             required
@@ -148,11 +148,11 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <label htmlFor="telefono">Telefono:</label>
+          <label htmlFor="telefono">Teléfono:</label>
           <input
             id="telefono"
             type="tel"
-            placeholder="Tu telefono"
+            placeholder="Tu teléfono"
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
             required
@@ -161,11 +161,11 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <label htmlFor="password">Contrasena:</label>
+          <label htmlFor="password">Contraseña:</label>
           <input
             id="password"
             type="password"
-            placeholder="Minimo 6 caracteres"
+            placeholder="Mínimo 6 caracteres"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -193,7 +193,7 @@ export default function RegisterForm() {
       </form>
 
       <p style={{ marginTop: '20px', textAlign: 'center' }}>
-        Ya tienes cuenta? <Link href="/login">Inicia sesion</Link>
+        ¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link>
       </p>
     </div>
   );

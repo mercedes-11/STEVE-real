@@ -1,6 +1,5 @@
 import Link from "next/link";
-import ProductCard from "../components/ProductCard";
-import { products } from "../data/products";
+import FeaturedProducts from "../components/FeaturedProducts";
 
 export default function HomePage() {
   return (
@@ -43,11 +42,7 @@ export default function HomePage() {
           </div>
 
           <div className="selection-carousel-wrapper">
-            <div className="selection-carousel">
-              {products.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <FeaturedProducts />
           </div>
         </div>
       </section>

@@ -20,7 +20,7 @@ export default function TestProductos() {
           console.error('Error en Supabase:', err);
         } else {
           setProductos(data);
-          console.log('✅ Productos cargados:', data);
+          console.log('Productos cargados:', data);
         }
       } catch (err) {
         setError(`Error de conexión: ${err.message}`);
@@ -33,15 +33,15 @@ export default function TestProductos() {
     fetchProductos();
   }, []);
 
-  if (loading) return <p>⏳ Cargando productos...</p>;
-  if (error) return <p style={{ color: 'red' }}>❌ {error}</p>;
+  if (loading) return <p>Cargando productos...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
   if (productos.length === 0) return <p>No hay productos</p>;
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>✅ Conexión a Supabase - FUNCIONA</h2>
+      <h2>Conexión a Supabase - funciona</h2>
       <p><strong>Productos encontrados: {productos.length}</strong></p>
-      
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
         {productos.map((prod) => (
           <div key={prod.id} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px' }}>

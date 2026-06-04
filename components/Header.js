@@ -11,7 +11,7 @@ export default function Header() {
   return (
     <header className="site-header">
       <div className="topbar">
-        <p className="topbar__text">Knitted essentials - diseno artesanal - edicion cuidada</p>
+        <p className="topbar__text">Knitted essentials - diseño artesanal - edición cuidada</p>
       </div>
 
       <div className="header-main">
@@ -22,7 +22,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="main-nav" aria-label="Navegacion principal">
+        <nav className="main-nav" aria-label="Navegación principal">
           <ul className="main-nav__list">
             <li className="main-nav__item">
               <Link href="/productos" className="main-nav__link">
@@ -44,7 +44,7 @@ export default function Header() {
             </Link>
           ) : (
             <Link href="/login" className="header-actions__link">
-              Iniciar sesion
+              Iniciar sesión
             </Link>
           )}
           <Link href="/carrito" className="header-actions__link cart-link" aria-label="Ver carrito">

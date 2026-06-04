@@ -25,7 +25,6 @@ export default function LoginForm({ redirectTo = '/carrito' }) {
 
       if (err) throw err;
 
-      // Redirigir después del login
       router.push(redirectTo);
     } catch (err) {
       setError(err.message || 'Error al iniciar sesión');
@@ -36,8 +35,8 @@ export default function LoginForm({ redirectTo = '/carrito' }) {
 
   return (
     <div style={{ maxWidth: '400px', margin: '0 auto', padding: '40px 20px' }}>
-      <h1>Iniciar Sesión</h1>
-      
+      <h1>Iniciar sesión</h1>
+
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div>
           <label htmlFor="email">Email:</label>
@@ -77,7 +76,7 @@ export default function LoginForm({ redirectTo = '/carrito' }) {
           />
         </div>
 
-        {error && <p style={{ color: 'red' }}>❌ {error}</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <button
           type="submit"
@@ -92,7 +91,7 @@ export default function LoginForm({ redirectTo = '/carrito' }) {
             opacity: loading ? 0.6 : 1,
           }}
         >
-          {loading ? 'Cargando...' : 'Iniciar Sesión'}
+          {loading ? 'Cargando...' : 'Iniciar sesión'}
         </button>
       </form>
 

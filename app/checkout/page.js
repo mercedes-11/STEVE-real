@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/useAuth";
 import { useCart } from "@/components/Cart";
-import { formatPrice } from "@/data/products";
+import { formatPrice } from "@/lib/pricing";
 
 const BANK_TRANSFER = "transferencia";
 const MERCADO_PAGO = "mercado_pago";
@@ -59,7 +59,7 @@ export default function CheckoutPage() {
     }
 
     if (!cart.length) {
-      setError("Tu carrito esta vacio.");
+      setError("Tu carrito está vacío.");
       return;
     }
 
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
       <main className="checkout-page">
         <section className="container checkout-shell">
           <p className="checkout-eyebrow">Checkout</p>
-          <h1 className="checkout-title">Tu carrito esta vacio</h1>
+          <h1 className="checkout-title">Tu carrito está vacío</h1>
           <Link href="/productos" className="checkout-link">
             Ver productos
           </Link>
@@ -186,11 +186,11 @@ export default function CheckoutPage() {
                   <dd>{profile?.email || user.email}</dd>
                 </div>
                 <div>
-                  <dt>Direccion</dt>
+                  <dt>Dirección</dt>
                   <dd>{profile?.direccion || "-"}</dd>
                 </div>
                 <div>
-                  <dt>Telefono</dt>
+                  <dt>Teléfono</dt>
                   <dd>{profile?.telefono || "-"}</dd>
                 </div>
               </dl>
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
 
           <aside className="checkout-side">
             <section className="checkout-section">
-              <h2>Metodo de pago</h2>
+              <h2>Método de pago</h2>
 
               <div className="payment-options">
                 <label className="payment-option">
@@ -237,8 +237,8 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <div className="mp-details">
-                  <p>Esta opcion queda preparada para integrar Mercado Pago.</p>
-                  <p>No se procesara ningun pago real desde esta pantalla.</p>
+                  <p>Esta opción queda preparada para integrar Mercado Pago.</p>
+                  <p>No se procesará ningún pago real desde esta pantalla.</p>
                 </div>
               )}
 
@@ -246,7 +246,7 @@ export default function CheckoutPage() {
 
               {successOrderId && (
                 <p className="checkout-success">
-                  Pedido creado correctamente. Numero de orden: {successOrderId}
+                  Pedido creado correctamente. Número de orden: {successOrderId}
                 </p>
               )}
 

@@ -136,7 +136,7 @@ export async function POST(request) {
   }
 
   if (!items.length) {
-    return NextResponse.json({ error: "El carrito esta vacio." }, { status: 400 });
+    return NextResponse.json({ error: "El carrito está vacío." }, { status: 400 });
   }
 
   const productIds = [...new Set(items.map(item => item.producto_id))];

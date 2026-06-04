@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/useAuth";
-import { formatPrice } from "@/data/products";
+import { formatPrice } from "@/lib/pricing";
 
 function formatDate(value) {
   if (!value) {
@@ -44,7 +44,7 @@ export default function OrdersPage() {
         } = await supabase.auth.getSession();
 
         if (!session?.access_token) {
-          setError("Necesitas iniciar sesion para ver tus ordenes.");
+          setError("Necesitás iniciar sesión para ver tus órdenes.");
           return;
         }
 
@@ -57,12 +57,12 @@ export default function OrdersPage() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || "No pudimos cargar tus ordenes.");
+          throw new Error(data.error || "No pudimos cargar tus órdenes.");
         }
 
         setOrders(data.orders || []);
       } catch (err) {
-        setError(err.message || "No pudimos cargar tus ordenes.");
+        setError(err.message || "No pudimos cargar tus órdenes.");
       } finally {
         setLoadingOrders(false);
       }
@@ -76,7 +76,7 @@ export default function OrdersPage() {
       <main className="orders-page">
         <section className="orders-panel container">
           <p className="orders-eyebrow">Mi cuenta</p>
-          <h1 className="orders-title">Cargando ordenes...</h1>
+          <h1 className="orders-title">Cargando órdenes...</h1>
         </section>
       </main>
     );
@@ -87,10 +87,10 @@ export default function OrdersPage() {
       <main className="orders-page">
         <section className="orders-panel container">
           <p className="orders-eyebrow">Mi cuenta</p>
-          <h1 className="orders-title">Mis ordenes</h1>
-          <p className="orders-empty">Necesitas iniciar sesion para ver tu historial de compras.</p>
+          <h1 className="orders-title">Mis órdenes</h1>
+          <p className="orders-empty">Necesitás iniciar sesión para ver tu historial de compras.</p>
           <Link href="/login?redirect=/ordenes" className="orders-link">
-            Iniciar sesion
+            Iniciar sesión
           </Link>
         </section>
       </main>
@@ -102,14 +102,14 @@ export default function OrdersPage() {
       <section className="orders-panel container">
         <div className="orders-heading">
           <p className="orders-eyebrow">Mi cuenta</p>
-          <h1 className="orders-title">Mis ordenes</h1>
+          <h1 className="orders-title">Mis órdenes</h1>
         </div>
 
         {error && <p className="orders-error">{error}</p>}
 
         {!error && !orders.length && (
           <div className="orders-empty-block">
-            <p className="orders-empty">Todavia no tenes ordenes.</p>
+            <p className="orders-empty">Todavía no tenés órdenes.</p>
             <Link href="/productos" className="orders-link">
               Ver productos
             </Link>
@@ -121,7 +121,7 @@ export default function OrdersPage() {
             {orders.map(order => (
               <article key={order.id} className="orders-item">
                 <div>
-                  <p className="orders-item__label">Numero de orden</p>
+                  <p className="orders-item__label">Número de orden</p>
                   <h2>#{order.id}</h2>
                   <p>{formatDate(order.creado_en)}</p>
                 </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "./Cart";
-import { calculateNetPrice, formatPrice } from "../data/products";
+import { calculateNetPrice, formatPrice } from "@/lib/pricing";
 
 export default function ProductCard({ product, grid = false, detail = false }) {
   const { addToCart } = useCart();

@@ -93,11 +93,11 @@ export default function PerfilPage() {
               <dd>{displayEmail}</dd>
             </div>
             <div className="profile-detail">
-              <dt>Direccion</dt>
+              <dt>Dirección</dt>
               <dd>{profile?.direccion || "-"}</dd>
             </div>
             <div className="profile-detail">
-              <dt>Telefono</dt>
+              <dt>Teléfono</dt>
               <dd>{profile?.telefono || "-"}</dd>
             </div>
           </dl>
@@ -105,12 +105,12 @@ export default function PerfilPage() {
 
         <div className="profile-actions">
           <Link href="/ordenes" className="profile-link">
-            Mis ordenes
+            Mis órdenes
           </Link>
         </div>
 
         <button className="profile-logout" type="button" onClick={handleLogout} disabled={loggingOut}>
-          {loggingOut ? "Cerrando..." : "Cerrar sesion"}
+          {loggingOut ? "Cerrando..." : "Cerrar sesión"}
         </button>
       </section>
     </main>

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { formatPrice } from "../data/products";
+import { formatPrice } from "@/lib/pricing";
 
 const STORAGE_KEY = "islabonita-cart";
 const CartContext = createContext(null);
