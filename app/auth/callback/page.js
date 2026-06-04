@@ -18,7 +18,7 @@ export default function AuthCallback() {
         router.push('/carrito');
       } else {
         // Si no hay sesión, ir al login
-        router.push('/auth/login');
+        router.push('/login');
       }
     };
 

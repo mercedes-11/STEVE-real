@@ -1,5 +1,4 @@
-import ProductGrid from "../../components/ProductGrid";
-import { products } from "../../data/products";
+import ProductCatalog from "../../components/ProductCatalog";
 
 export const metadata = {
   title: "Productos | islabonita"
@@ -16,7 +15,7 @@ export default function ProductsPage() {
 
       <section className="selection section" aria-label="Listado de productos">
         <div className="container">
-          <ProductGrid products={products} />
+          <ProductCatalog />
         </div>
       </section>
     </main>

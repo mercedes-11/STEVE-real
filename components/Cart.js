@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { formatPrice } from "../data/products";
 
 const STORAGE_KEY = "islabonita-cart";
@@ -61,6 +63,37 @@ export function CartProvider({ children }) {
     [cart]
   );
 
+  async function syncCartItem(productId, quantity) {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        return;
+      }
+
+      const response = await fetch("/api/carrito", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          producto_id: productId,
+          cantidad: quantity,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        console.error("No se pudo sincronizar el carrito:", data.error || response.statusText);
+      }
+    } catch (error) {
+      console.error("No se pudo sincronizar el carrito:", error);
+    }
+  }
+
   function addToCart(product) {
     setCart(currentCart => {
       const existingItem = currentCart.find(item => item.id === product.id);
@@ -82,6 +115,8 @@ export function CartProvider({ children }) {
         }
       ];
     });
+
+    syncCartItem(product.id, 1);
   }
 
   function increaseQuantity(productId) {
@@ -135,6 +170,11 @@ export function useCart() {
 
 export default function Cart() {
   const { cart, cartTotal, increaseQuantity, decreaseQuantity, removeFromCart } = useCart();
+  const router = useRouter();
+
+  function handleCheckout() {
+    router.push("/checkout");
+  }
 
   if (!cart.length) {
     return (
@@ -176,7 +216,7 @@ export default function Cart() {
         <strong>{formatPrice(cartTotal)}</strong>
       </div>
 
-      <button type="button" className="cart-checkout">
+      <button type="button" className="cart-checkout" onClick={handleCheckout}>
         Finalizar compra
       </button>
     </div>

@@ -5,11 +5,22 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function RegisterForm({ redirectTo = '/carrito' }) {
+const inputStyle = {
+  width: '100%',
+  padding: '10px',
+  borderRadius: '4px',
+  border: '1px solid #ccc',
+  marginTop: '5px',
+  boxSizing: 'border-box',
+};
+
+export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
+  const [direccion, setDireccion] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -22,26 +33,33 @@ export default function RegisterForm({ redirectTo = '/carrito' }) {
     setLoading(true);
 
     try {
-      // 1. Crear usuario en Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (authError) throw authError;
+      if (signUpError) {
+        setError(signUpError.message || 'Error al crear el usuario');
+        return;
+      }
 
-      // 2. Guardar perfil en tabla usuarios
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('usuarios')
-          .insert({
-            id: authData.user.id,
-            email,
-            nombre,
-            apellido,
-          });
+      if (!data.user) {
+        setError('No se pudo obtener el usuario creado.');
+        return;
+      }
 
-        if (profileError) throw profileError;
+      const { error: insertError } = await supabase.from('usuarios').insert({
+        id: data.user.id,
+        email,
+        nombre,
+        apellido,
+        direccion,
+        telefono,
+      });
+
+      if (insertError) {
+        setError(insertError.message || 'Error al guardar los datos del usuario');
+        return;
       }
 
       setSuccess(true);
@@ -49,10 +67,11 @@ export default function RegisterForm({ redirectTo = '/carrito' }) {
       setPassword('');
       setNombre('');
       setApellido('');
+      setDireccion('');
+      setTelefono('');
 
-      // Redirigir después del registro
       setTimeout(() => {
-        router.push(redirectTo);
+        router.push('/login');
       }, 1500);
     } catch (err) {
       setError(err.message || 'Error al registrarse');
@@ -64,9 +83,9 @@ export default function RegisterForm({ redirectTo = '/carrito' }) {
   if (success) {
     return (
       <div style={{ maxWidth: '400px', margin: '0 auto', padding: '40px 20px', textAlign: 'center' }}>
-        <h2>✅ ¡Bienvenido!</h2>
+        <h2>Cuenta creada</h2>
         <p>Tu cuenta ha sido creada exitosamente.</p>
-        <p>Redirigiendo...</p>
+        <p>Redirigiendo al login...</p>
       </div>
     );
   }
@@ -85,14 +104,7 @@ export default function RegisterForm({ redirectTo = '/carrito' }) {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              marginTop: '5px',
-              boxSizing: 'border-box',
-            }}
+            style={inputStyle}
           />
         </div>
 
@@ -105,14 +117,7 @@ export default function RegisterForm({ redirectTo = '/carrito' }) {
             value={apellido}
             onChange={(e) => setApellido(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              marginTop: '5px',
-              boxSizing: 'border-box',
-            }}
+            style={inputStyle}
           />
         </div>
 
@@ -125,38 +130,50 @@ export default function RegisterForm({ redirectTo = '/carrito' }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              marginTop: '5px',
-              boxSizing: 'border-box',
-            }}
+            style={inputStyle}
           />
         </div>
 
         <div>
-          <label htmlFor="password">Contraseña:</label>
+          <label htmlFor="direccion">Direccion:</label>
           <input
-            id="password"
-            type="password"
-            placeholder="Mínimo 6 caracteres"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            id="direccion"
+            type="text"
+            placeholder="Tu direccion"
+            value={direccion}
+            onChange={(e) => setDireccion(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              marginTop: '5px',
-              boxSizing: 'border-box',
-            }}
+            style={inputStyle}
           />
         </div>
 
-        {error && <p style={{ color: 'red' }}>❌ {error}</p>}
+        <div>
+          <label htmlFor="telefono">Telefono:</label>
+          <input
+            id="telefono"
+            type="tel"
+            placeholder="Tu telefono"
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            required
+            style={inputStyle}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password">Contrasena:</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Minimo 6 caracteres"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={inputStyle}
+          />
+        </div>
+
+        {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <button
           type="submit"
@@ -176,7 +193,7 @@ export default function RegisterForm({ redirectTo = '/carrito' }) {
       </form>
 
       <p style={{ marginTop: '20px', textAlign: 'center' }}>
-        ¿Ya tienes cuenta? <Link href="/auth/login">Inicia sesión</Link>
+        Ya tienes cuenta? <Link href="/login">Inicia sesion</Link>
       </p>
     </div>
   );

@@ -1,0 +1,267 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/useAuth";
+import { useCart } from "@/components/Cart";
+import { formatPrice } from "@/data/products";
+
+const BANK_TRANSFER = "transferencia";
+const MERCADO_PAGO = "mercado_pago";
+
+export default function CheckoutPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { cart, cartTotal } = useCart();
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState(BANK_TRANSFER);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successOrderId, setSuccessOrderId] = useState(null);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      router.replace("/login?redirect=/checkout");
+      return;
+    }
+
+    const getProfile = async () => {
+      setProfileLoading(true);
+
+      const { data, error: profileError } = await supabase
+        .from("usuarios")
+        .select("nombre, apellido, email, direccion, telefono")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!profileError) {
+        setProfile(data);
+      }
+
+      setProfileLoading(false);
+    };
+
+    getProfile();
+  }, [authLoading, router, user]);
+
+  const handleConfirmOrder = async () => {
+    setError(null);
+    setSuccessOrderId(null);
+
+    if (!user) {
+      router.replace("/login?redirect=/checkout");
+      return;
+    }
+
+    if (!cart.length) {
+      setError("Tu carrito esta vacio.");
+      return;
+    }
+
+    setOrderLoading(true);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        router.replace("/login?redirect=/checkout");
+        return;
+      }
+
+      const response = await fetch("/api/ordenes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          paymentMethod,
+          items: cart.map(item => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
+          checkoutData: {
+            email: profile?.email || user.email,
+            nombre: profile?.nombre || "",
+            telefono: profile?.telefono || "",
+            direccion_envio: profile?.direccion || "",
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "No pudimos crear tu pedido.");
+      }
+
+      setSuccessOrderId(data.orderId);
+    } catch (orderError) {
+      setError(orderError.message || "No pudimos crear tu pedido.");
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
+  if (authLoading || profileLoading) {
+    return (
+      <main className="checkout-page">
+        <section className="container checkout-shell">
+          <p className="checkout-eyebrow">Checkout</p>
+          <h1 className="checkout-title">Preparando tu compra...</h1>
+        </section>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  if (!cart.length) {
+    return (
+      <main className="checkout-page">
+        <section className="container checkout-shell">
+          <p className="checkout-eyebrow">Checkout</p>
+          <h1 className="checkout-title">Tu carrito esta vacio</h1>
+          <Link href="/productos" className="checkout-link">
+            Ver productos
+          </Link>
+        </section>
+      </main>
+    );
+  }
+
+  return (
+    <main className="checkout-page">
+      <section className="container checkout-shell">
+        <div className="checkout-heading">
+          <p className="checkout-eyebrow">Checkout</p>
+          <h1 className="checkout-title">Finalizar compra</h1>
+        </div>
+
+        <div className="checkout-layout">
+          <div className="checkout-main">
+            <section className="checkout-section">
+              <h2>Resumen</h2>
+              <div className="checkout-items">
+                {cart.map(item => (
+                  <article key={item.id} className="checkout-item">
+                    <div>
+                      <h3>{item.name}</h3>
+                      <p>
+                        {item.quantity} x {formatPrice(item.price)}
+                      </p>
+                    </div>
+                    <strong>{formatPrice(item.price * item.quantity)}</strong>
+                  </article>
+                ))}
+              </div>
+              <div className="checkout-total">
+                <span>Total</span>
+                <strong>{formatPrice(cartTotal)}</strong>
+              </div>
+            </section>
+
+            <section className="checkout-section">
+              <h2>Datos de contacto</h2>
+              <dl className="checkout-profile">
+                <div>
+                  <dt>Nombre</dt>
+                  <dd>{profile?.nombre || "-"}</dd>
+                </div>
+                <div>
+                  <dt>Apellido</dt>
+                  <dd>{profile?.apellido || "-"}</dd>
+                </div>
+                <div>
+                  <dt>Email</dt>
+                  <dd>{profile?.email || user.email}</dd>
+                </div>
+                <div>
+                  <dt>Direccion</dt>
+                  <dd>{profile?.direccion || "-"}</dd>
+                </div>
+                <div>
+                  <dt>Telefono</dt>
+                  <dd>{profile?.telefono || "-"}</dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+
+          <aside className="checkout-side">
+            <section className="checkout-section">
+              <h2>Metodo de pago</h2>
+
+              <div className="payment-options">
+                <label className="payment-option">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value={BANK_TRANSFER}
+                    checked={paymentMethod === BANK_TRANSFER}
+                    onChange={() => setPaymentMethod(BANK_TRANSFER)}
+                  />
+                  <span>Transferencia bancaria</span>
+                </label>
+
+                <label className="payment-option">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value={MERCADO_PAGO}
+                    checked={paymentMethod === MERCADO_PAGO}
+                    onChange={() => setPaymentMethod(MERCADO_PAGO)}
+                  />
+                  <span>Pago seguro con Mercado Pago</span>
+                </label>
+              </div>
+
+              {paymentMethod === BANK_TRANSFER ? (
+                <div className="bank-details">
+                  <p>Banco: XXXXX</p>
+                  <p>Alias: XXXXX</p>
+                  <p>CBU: XXXXX</p>
+                  <p>Titular: XXXXX</p>
+                  <p className="bank-details__note">
+                    Una vez realizada la transferencia, envianos el comprobante para confirmar tu pedido.
+                  </p>
+                </div>
+              ) : (
+                <div className="mp-details">
+                  <p>Esta opcion queda preparada para integrar Mercado Pago.</p>
+                  <p>No se procesara ningun pago real desde esta pantalla.</p>
+                </div>
+              )}
+
+              {error && <p className="checkout-error">{error}</p>}
+
+              {successOrderId && (
+                <p className="checkout-success">
+                  Pedido creado correctamente. Numero de orden: {successOrderId}
+                </p>
+              )}
+
+              <button
+                type="button"
+                className="checkout-confirm"
+                onClick={handleConfirmOrder}
+                disabled={orderLoading}
+              >
+                {orderLoading ? "Confirmando..." : "Confirmar pedido"}
+              </button>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+  );
+}

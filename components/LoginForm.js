@@ -97,7 +97,7 @@ export default function LoginForm({ redirectTo = '/carrito' }) {
       </form>
 
       <p style={{ marginTop: '20px', textAlign: 'center' }}>
-        ¿No tienes cuenta? <Link href="/auth/registro">Regístrate aquí</Link>
+        ¿No tienes cuenta? <Link href="/register">Regístrate aquí</Link>
       </p>
     </div>
   );

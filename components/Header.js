@@ -1,24 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCart } from "./Cart";
 import { useAuth } from "@/lib/useAuth";
 
 export default function Header() {
   const { cartItemsCount } = useCart();
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
+  const { user } = useAuth();
 
   return (
     <header className="site-header">
       <div className="topbar">
-        <p className="topbar__text">Knitted essentials · diseño artesanal · edición cuidada</p>
+        <p className="topbar__text">Knitted essentials - diseno artesanal - edicion cuidada</p>
       </div>
 
       <div className="header-main">
@@ -29,7 +22,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="main-nav" aria-label="Navegación principal">
+        <nav className="main-nav" aria-label="Navegacion principal">
           <ul className="main-nav__list">
             <li className="main-nav__item">
               <Link href="/productos" className="main-nav__link">
@@ -46,27 +39,12 @@ export default function Header() {
 
         <div className="header-actions" aria-label="Acciones del usuario">
           {user ? (
-            <>
-              <span style={{ marginRight: '15px', fontSize: '0.9em', color: '#666' }}>
-                Hola, {user.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  color: '#000',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  marginRight: '15px',
-                }}
-              >
-                Cerrar sesión
-              </button>
-            </>
+            <Link href="/perfil" className="header-actions__link">
+              Mi cuenta
+            </Link>
           ) : (
-            <Link href="/auth/login" className="header-actions__link">
-              Iniciar sesión
+            <Link href="/login" className="header-actions__link">
+              Iniciar sesion
             </Link>
           )}
           <Link href="/carrito" className="header-actions__link cart-link" aria-label="Ver carrito">
