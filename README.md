@@ -1,8 +1,8 @@
 # Islabonita
 
-E-commerce de piezas knitted desarrollado con Next.js, React y Supabase. El proyecto incluye landing, catálogo, detalle de producto, autenticación, perfil, carrito, checkout, historial de órdenes y panel admin para gestión de productos.
+E-commerce de piezas knitted desarrollado con Next.js, React y Supabase. Incluye landing, catálogo, detalle de producto, autenticación, perfil, carrito, checkout, historial de órdenes, panel admin y Checkout Pro de Mercado Pago con webhook.
 
-## URL pública
+## URL Pública
 
 - Producción en Vercel: completar con la URL pública final del proyecto.
 - Deploy automático: Vercel conectado al repositorio.
@@ -10,7 +10,7 @@ E-commerce de piezas knitted desarrollado con Next.js, React y Supabase. El proy
 
 > No se incluyen claves reales ni datos sensibles en este repositorio.
 
-## Stack tecnológico
+## Stack Tecnológico
 
 - Next.js 14 con App Router
 - React 18
@@ -19,73 +19,117 @@ E-commerce de piezas knitted desarrollado con Next.js, React y Supabase. El proy
 - Supabase Database
 - Supabase JS SDK
 - API Routes de Next.js
+- Mercado Pago Checkout Pro
+- Vercel
+- GitHub Actions
 - CSS global propio
-- Vercel para deploy
-- GitHub Actions para CI
 
-## Funcionalidades actuales
+## Funcionalidades Actuales
 
 - Landing responsive con productos destacados.
 - Catálogo desde `GET /api/productos`.
 - Detalle desde `GET /api/productos/[id]`.
-- Registro con Supabase Auth e inserción de perfil en `public.usuarios`.
+- Registro con Supabase Auth e inserción en `public.usuarios`.
 - Login y cierre de sesión.
-- Página `/perfil` con datos del usuario autenticado.
+- Perfil de usuario en `/perfil`.
 - Carrito local con React Context y `localStorage`.
-- Sincronización mínima del carrito con `public.carrito` cuando el usuario está logueado.
-- Checkout con transferencia bancaria y opción visual preparada para Mercado Pago.
-- Creación de órdenes desde `POST /api/ordenes`.
-- Validación server-side de productos, cantidades, stock y total.
-- Descuento de stock desde servidor.
+- Sincronización mínima del carrito con `public.carrito` cuando hay sesión.
+- Checkout por transferencia bancaria.
+- Checkout Pro real de Mercado Pago.
+- Webhook de Mercado Pago para confirmar pagos.
+- Creación de órdenes y detalles.
+- Validación server-side de productos, cantidades, precios y stock.
+- Stock descontado desde servidor.
 - Historial de compras en `/ordenes`.
-- Panel admin protegido por tabla `public.admins`.
+- Panel admin protegido por `public.admins`.
 - CRUD admin de productos: listar, crear, editar, modificar stock y desactivar.
 - Catálogo público filtrado por productos activos.
 
-## Estado de Mercado Pago
+## Flujo de Pago
 
-Mercado Pago real todavía no está implementado. La opción existe en checkout como alternativa visual/preparada, pero no genera preferencia, no procesa pagos reales y no recibe webhooks.
+### Transferencia Bancaria
 
-Pendiente para completar E6 Excelente:
+El flujo de transferencia se mantiene con `POST /api/ordenes`:
 
-- Crear preferencia real de Mercado Pago desde servidor.
-- Redirigir al checkout real de Mercado Pago.
-- Crear webhook para actualizar estados de órdenes.
-- Probar pagos aprobados, rechazados y pendientes.
-- Documentar credenciales de entorno sin valores reales.
+1. Valida usuario autenticado.
+2. Valida carrito.
+3. Busca productos reales en Supabase.
+4. Calcula total en servidor.
+5. Crea orden con `estado = pendiente_pago`.
+6. Crea filas en `detalle_ordenes`.
+7. Descuenta stock.
 
-## Arquitectura general
+### Mercado Pago Checkout Pro
+
+Mercado Pago usa un flujo separado:
+
+1. El usuario elige Mercado Pago en `/checkout`.
+2. El frontend llama a `POST /api/mercadopago/preferencia`.
+3. La API valida sesión, productos, precios y stock.
+4. Se crea una orden con:
+   - `metodo_pago = mercado_pago`
+   - `estado = pendiente_pago_mp`
+   - `external_reference`
+   - `mp_preference_id`
+5. Se crean las filas en `detalle_ordenes`.
+6. Se crea la preferencia en Mercado Pago.
+7. Se redirige al usuario al `init_point` de Checkout Pro.
+8. No se descuenta stock al crear la preferencia.
+9. Mercado Pago llama al webhook.
+10. Si el pago llega con `status = approved`, el webhook consulta el pago real y llama a `public.confirmar_pago_mercadopago`.
+11. La función verifica stock actual, descuenta stock y marca la orden como `pagado`.
+
+Si el pago aprobado llega cuando ya no hay stock suficiente, la orden queda con:
+
+- `estado = pago_aprobado_sin_stock`
+- `mp_status = approved`
+- `stock_error` con el motivo
+
+En ese caso no se descuenta stock y la orden no queda como pagada.
+
+Estados relevantes:
+
+- `pendiente_pago`
+- `pendiente_pago_mp`
+- `pagado`
+- `pago_rechazado`
+- `pago_aprobado_sin_stock`
+
+## Variables de Entorno
+
+Crear `.env.local` para desarrollo y configurar las mismas variables en Vercel:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SITE_URL=
+MERCADOPAGO_ACCESS_TOKEN=
+NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY=
+```
+
+Notas:
+
+- `MERCADOPAGO_ACCESS_TOKEN` debe ser secreto y solo se usa en API Routes.
+- `NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY` queda disponible para frontend, aunque el flujo actual usa redirección a `init_point`.
+- `NEXT_PUBLIC_SITE_URL` debe apuntar a la URL pública de Vercel en producción.
+
+Webhook Mercado Pago:
+
+```txt
+{NEXT_PUBLIC_SITE_URL}/api/mercadopago/webhook
+```
+
+En desarrollo local, Mercado Pago necesita una URL pública para llegar al webhook. Para probar webhook localmente se puede usar un túnel como ngrok y configurar `NEXT_PUBLIC_SITE_URL` con esa URL temporal.
+
+## Arquitectura General
 
 La aplicación usa App Router. Las páginas viven en `app/`, los componentes reutilizables en `components/`, las utilidades compartidas en `lib/`, los assets en `public/assets/` y las API Routes en `app/api/`.
 
-El frontend consume API Routes internas para los flujos principales. Las rutas protegidas reciben el access token de Supabase como Bearer token y operan con la anon key, respetando RLS. No se usa `service_role`.
-
-## Estructura de carpetas
-
-```txt
-app/
-  api/
-    admin/
-    carrito/
-    ordenes/
-    productos/
-  admin/
-  carrito/
-  checkout/
-  login/
-  ordenes/
-  perfil/
-  productos/
-components/
-lib/
-data/
-public/assets/
-.github/workflows/
-```
+Las rutas protegidas reciben el access token de Supabase como Bearer token y operan con anon key, respetando RLS. No se usa `service_role`.
 
 `data/products.js` queda como respaldo legacy. El flujo principal de home, catálogo y detalle lee desde API/Supabase.
 
-## Rutas principales
+## Rutas Principales
 
 - `/`: landing con productos destacados desde API.
 - `/productos`: catálogo público.
@@ -95,32 +139,37 @@ public/assets/
 - `/perfil`: perfil del usuario autenticado.
 - `/carrito`: carrito.
 - `/checkout`: checkout.
-- `/ordenes`: historial de compras del usuario.
-- `/admin`: acceso al panel admin.
-- `/admin/productos`: CRUD de productos para administradores.
+- `/ordenes`: historial de compras.
+- `/admin`: acceso admin.
+- `/admin/productos`: CRUD de productos.
 
-## API Routes implementadas
+## API Routes Implementadas
 
 ### Públicas
 
-- `GET /api/productos`: lista productos activos desde `public.productos`.
-- `GET /api/productos/[id]`: obtiene un producto activo por id.
+- `GET /api/productos`: lista productos activos.
+- `GET /api/productos/[id]`: obtiene un producto activo.
 
-### Protegidas para usuario autenticado
+### Usuario Autenticado
 
-- `POST /api/carrito`: valida producto, cantidad y stock; inserta o incrementa en `public.carrito`.
-- `POST /api/ordenes`: valida sesión, productos, cantidades y stock; calcula total en servidor; crea orden y detalle; descuenta stock.
-- `GET /api/ordenes`: devuelve únicamente órdenes del usuario autenticado.
+- `POST /api/carrito`: inserta o incrementa un producto en `public.carrito`.
+- `POST /api/ordenes`: crea orden por transferencia y descuenta stock.
+- `GET /api/ordenes`: devuelve órdenes propias.
+- `POST /api/mercadopago/preferencia`: crea orden pendiente y preferencia de Mercado Pago sin descontar stock.
 
-### Protegidas para admin
+### Mercado Pago
 
-- `GET /api/admin/me`: verifica si el usuario autenticado existe en `public.admins`.
-- `GET /api/admin/productos`: lista todos los productos, activos e inactivos.
+- `POST /api/mercadopago/webhook`: recibe notificaciones, consulta el pago real y confirma stock/estado vía RPC.
+
+### Admin
+
+- `GET /api/admin/me`: verifica si el usuario está en `public.admins`.
+- `GET /api/admin/productos`: lista todos los productos.
 - `POST /api/admin/productos`: crea producto.
 - `PUT /api/admin/productos/[id]`: edita producto.
-- `DELETE /api/admin/productos/[id]`: no borra físicamente; desactiva con `activo = false`.
+- `DELETE /api/admin/productos/[id]`: desactiva producto con `activo = false`.
 
-## Modelo de datos Supabase
+## Modelo de Datos Supabase
 
 ### `productos`
 
@@ -147,15 +196,6 @@ public/assets/
 - `usuario_id`
 - `creado_en`
 
-Esta tabla identifica administradores sin hardcodear emails ni usar `service_role`.
-
-### `carrito`
-
-- `id`
-- `usuario_id`
-- `producto_id`
-- `cantidad`
-
 ### `ordenes`
 
 - `id`
@@ -166,6 +206,16 @@ Esta tabla identifica administradores sin hardcodear emails ni usar `service_rol
 - `direccion_envio`
 - `total`
 - `estado`
+- `metodo_pago`
+- `mp_preference_id`
+- `mp_payment_id`
+- `mp_status`
+- `mp_status_detail`
+- `external_reference`
+- `pagado_en`
+- `mp_ultima_notificacion_en`
+- `stock_confirmado_en`
+- `stock_error`
 - `creado_en`
 - `actualizado_en`
 
@@ -180,24 +230,35 @@ Esta tabla identifica administradores sin hardcodear emails ni usar `service_rol
 - `subtotal`
 - `creado_en`
 
-## RLS y permisos esperados
+### `mercadopago_webhook_events`
 
-RLS debe permanecer activo. Las policies esperadas son:
+- `id`
+- `event_id`
+- `action`
+- `type`
+- `mp_payment_id`
+- `external_reference`
+- `mp_status`
+- `payload`
+- `procesado`
+- `error`
+- `creado_en`
 
-- Usuarios pueden insertar y ver su propio perfil en `usuarios`.
-- Usuarios pueden crear y ver sus propias órdenes en `ordenes`.
-- Usuarios pueden insertar y ver detalles asociados a sus propias órdenes en `detalle_ordenes`.
-- Usuarios autenticados pueden sincronizar su propio carrito en `carrito`.
-- El catálogo público puede leer productos activos.
-- Solo usuarios presentes en `admins` pueden crear, editar o desactivar productos.
-- Usuarios comunes no pueden crear ni editar productos.
+## RLS y Seguridad
 
-## Cómo crear un admin
+- RLS debe permanecer activo.
+- No se usa `service_role`.
+- El webhook no actualiza tablas directamente con permisos amplios.
+- La confirmación de Mercado Pago usa la función limitada `public.confirmar_pago_mercadopago`.
+- El webhook consulta el pago real en Mercado Pago antes de modificar la orden.
+- Queda pendiente implementar validación criptográfica de firma con `MERCADOPAGO_WEBHOOK_SECRET`.
+
+## Cómo Crear un Admin
 
 1. Ir a Supabase Dashboard.
 2. Entrar en Authentication -> Users.
-3. Copiar el `user_id` del usuario que debe ser admin.
-4. Ejecutar en SQL Editor:
+3. Copiar el `user_id`.
+4. Ejecutar:
 
 ```sql
 insert into public.admins (usuario_id)
@@ -205,19 +266,8 @@ values ('PEGAR_USER_ID_AQUI')
 on conflict (usuario_id) do nothing;
 ```
 
-5. Verificar en Table Editor -> `admins` que el usuario quedó insertado.
-6. Iniciar sesión en la app y entrar a `/admin`.
-
-## Variables de entorno
-
-Crear `.env.local` para desarrollo:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-```
-
-En Vercel configurar las mismas variables en Project Settings -> Environment Variables.
+5. Verificar en Table Editor -> `admins`.
+6. Iniciar sesión y entrar a `/admin`.
 
 ## Instalación
 
@@ -225,7 +275,7 @@ En Vercel configurar las mismas variables en Project Settings -> Environment Var
 npm install
 ```
 
-## Desarrollo local
+## Desarrollo Local
 
 ```bash
 npm run dev
@@ -249,130 +299,107 @@ El repositorio incluye GitHub Actions en `.github/workflows/ci.yml`.
 
 El pipeline corre en push y pull request:
 
-1. Checkout del repositorio.
-2. Setup de Node.js 20.
+1. Checkout.
+2. Setup Node.js 20.
 3. `npm install`.
 4. `npm run build`.
 
-El build usa secrets de GitHub:
+Secrets requeridos en GitHub Actions:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-Para verificar CI:
-
-1. Hacer push a una rama.
-2. Abrir GitHub -> Actions.
-3. Verificar que el workflow `CI` termine en verde.
-
 ## Deploy en Vercel
 
-El proyecto despliega en Vercel como aplicación Next.js sin necesidad de `vercel.json`.
+Next.js despliega en Vercel sin `vercel.json`.
 
-Checklist de deploy:
+Checklist:
 
 - Repo conectado a Vercel.
 - Variables de Supabase configuradas.
+- Variables de Mercado Pago configuradas.
+- `NEXT_PUBLIC_SITE_URL` apunta a producción.
 - Build remoto exitoso.
-- URL pública accesible.
-- Preview por PR habilitado desde la integración Vercel/GitHub.
+- Preview por PR habilitado.
 
-## Checklist de pruebas manuales
+## Checklist de Pruebas Manuales
 
-### Catálogo desde Supabase/API
+### Catálogo
 
 - Abrir `/api/productos`.
-- Confirmar que devuelve productos activos desde Supabase.
+- Confirmar que devuelve productos activos.
 - Abrir `/productos`.
-- Confirmar que coincide con la API.
-- Abrir `/api/productos/1`.
-- Abrir `/productos/1`.
-- Desactivar un producto desde admin y confirmar que no aparece en catálogo público.
+- Abrir `/productos/[id]`.
+- Desactivar un producto desde admin y confirmar que no aparece públicamente.
 
-### Registro y login
+### Auth y Perfil
 
-- Registrar un usuario nuevo.
-- Confirmar que aparece en Supabase Auth.
-- Confirmar que aparece en `public.usuarios`.
+- Registrar usuario.
+- Confirmar usuario en Supabase Auth.
+- Confirmar perfil en `public.usuarios`.
 - Iniciar sesión.
-- Cerrar sesión desde `/perfil`.
+- Abrir `/perfil`.
+- Cerrar sesión.
 
-### Perfil
+### Admin
 
-- Abrir `/perfil` con sesión activa.
-- Verificar nombre, apellido, email, dirección y teléfono.
-- Cerrar sesión y confirmar que no se muestran datos privados.
+- Iniciar sesión con usuario admin.
+- Verificar que aparece `Panel admin`.
+- Crear producto.
+- Editar producto.
+- Cambiar stock.
+- Desactivar producto.
+- Iniciar sesión con usuario común y confirmar que no accede a `/admin`.
 
-### Carrito
-
-- Agregar producto desde `/productos`.
-- Agregar producto desde `/productos/[id]`.
-- Verificar contador en header.
-- Abrir `/carrito`.
-- Aumentar cantidad.
-- Disminuir cantidad.
-- Eliminar producto.
-- Probar sin sesión y confirmar persistencia local.
-- Probar con sesión y verificar sincronización en `public.carrito`.
-
-### Checkout y stock
+### Transferencia
 
 - Agregar productos al carrito.
-- Abrir `/checkout` con usuario logueado.
-- Confirmar pedido con transferencia.
-- Confirmar pedido con Mercado Pago visual.
-- Verificar fila en `public.ordenes`.
-- Verificar filas en `public.detalle_ordenes`.
-- Verificar que baja `productos.stock`.
-- Intentar comprar más que el stock disponible y confirmar error claro.
+- Elegir transferencia.
+- Confirmar pedido.
+- Verificar orden con `estado = pendiente_pago`.
+- Verificar filas en `detalle_ordenes`.
+- Verificar descuento de stock.
 
-### Órdenes
+### Mercado Pago Sandbox
 
-- Abrir `/ordenes` con sesión.
-- Verificar número de orden, fecha, estado, cantidad de productos y total.
-- Probar con otro usuario y confirmar que no ve órdenes ajenas.
-- Cerrar sesión y confirmar que `/ordenes` solicita iniciar sesión.
+- Usar credenciales de prueba de Mercado Pago.
+- Configurar `MERCADOPAGO_ACCESS_TOKEN` de test.
+- Configurar `NEXT_PUBLIC_SITE_URL` con la URL pública de Vercel o un túnel público.
+- En Mercado Pago Developers, configurar webhook:
 
-### Admin con permisos
+```txt
+{NEXT_PUBLIC_SITE_URL}/api/mercadopago/webhook
+```
 
-- Iniciar sesión con un usuario cargado en `public.admins`.
-- Verificar que el header muestra `Panel admin`.
-- Entrar a `/admin`.
-- Entrar a `/admin/productos`.
-- Crear un producto.
-- Editar nombre, precio, categoría, descripción, imagen, stock y activo.
-- Desactivar un producto.
-- Confirmar que productos inactivos no aparecen en `/productos`.
-- Usar `Vista cliente` para volver al catálogo público.
+- Agregar productos al carrito.
+- Elegir Mercado Pago.
+- Confirmar pedido.
+- Verificar redirección a Checkout Pro.
+- Realizar pago con tarjeta de prueba.
+- Esperar webhook.
+- Verificar en `ordenes`:
+  - `estado`
+  - `metodo_pago`
+  - `mp_preference_id`
+  - `mp_payment_id`
+  - `mp_status`
+  - `mp_status_detail`
+  - `pagado_en`
+  - `stock_confirmado_en`
+  - `stock_error`
+- Verificar en `mercadopago_webhook_events` que se guardó el evento.
+- Verificar que el stock solo baja si `mp_status = approved`.
 
-### Usuario común sin permisos
+### Caso Sin Stock Post Pago
 
-- Iniciar sesión con un usuario no cargado en `public.admins`.
-- Verificar que el header no muestra `Panel admin`.
-- Intentar abrir `/admin`.
-- Confirmar mensaje `No autorizado`.
-- Intentar abrir `/admin/productos`.
-- Confirmar que no puede acceder ni modificar productos.
+- Crear preferencia con stock disponible.
+- Antes de aprobar el pago, bajar el stock desde admin o Supabase.
+- Aprobar el pago.
+- Verificar que la orden queda `pago_aprobado_sin_stock`.
+- Verificar que `stock_error` explica el motivo.
+- Verificar que no se descuenta stock adicional.
 
-### CI y deploy
-
-- Hacer push a una rama.
-- Confirmar GitHub Actions en verde.
-- Abrir el preview de Vercel si es un pull request.
-- Validar rutas principales en producción:
-  - `/`
-  - `/productos`
-  - `/productos/[id]`
-  - `/login`
-  - `/register`
-  - `/perfil`
-  - `/carrito`
-  - `/checkout`
-  - `/ordenes`
-  - `/admin`
-  - `/api/productos`
-
-## Scripts disponibles
+## Scripts Disponibles
 
 ```json
 {
@@ -383,26 +410,3 @@ Checklist de deploy:
 ```
 
 Actualmente no hay scripts de lint ni test configurados.
-
-## Estado actual del proyecto
-
-Implementado:
-
-- Deploy en Vercel.
-- CI con GitHub Actions.
-- Catálogo y detalle desde API/Supabase.
-- Auth con Supabase.
-- Perfil.
-- Carrito local y sincronización mínima con API.
-- Checkout con validación server-side y descuento de stock.
-- Historial de órdenes.
-- Admin CRUD con tabla `admins`.
-- Productos activos/inactivos.
-
-Pendiente para cerrar Excelente global:
-
-- Integración real de Mercado Pago.
-- Webhook de Mercado Pago.
-- Evidencia final de pruebas de pago.
-- Completar en este README la URL pública final de Vercel.
-- Opcional: agregar lint/tests automatizados.

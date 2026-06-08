@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const BANK_TRANSFER = "transferencia";
+const MERCADO_PAGO_API = "https://api.mercadopago.com";
 const MERCADO_PAGO = "mercado_pago";
+const ORDER_STATUS = "pendiente_pago_mp";
 
 function getSupabaseForUser(accessToken) {
   return createClient(
@@ -68,52 +69,67 @@ async function getAuthenticatedUser(request) {
   return { supabase, user };
 }
 
-export async function GET(request) {
-  const { supabase, user, error } = await getAuthenticatedUser(request);
+function getSiteUrl() {
+  return String(process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+}
 
-  if (error) {
-    return NextResponse.json({ error }, { status: 401 });
+async function createMercadoPagoPreference({ accessToken, externalReference, orderItems, profile, user }) {
+  const siteUrl = getSiteUrl();
+
+  if (!siteUrl) {
+    throw new Error("Falta configurar NEXT_PUBLIC_SITE_URL.");
   }
 
-  const { data: orders, error: ordersError } = await supabase
-    .from("ordenes")
-    .select("id, total, estado, creado_en")
-    .eq("usuario_id", user.id)
-    .order("creado_en", { ascending: false });
-
-  if (ordersError) {
-    return NextResponse.json({ error: ordersError.message }, { status: 500 });
+  if (!accessToken) {
+    throw new Error("Falta configurar MERCADOPAGO_ACCESS_TOKEN.");
   }
 
-  const orderIds = orders.map(order => order.id);
-  let quantitiesByOrder = new Map();
-
-  if (orderIds.length) {
-    const { data: details, error: detailsError } = await supabase
-      .from("detalle_ordenes")
-      .select("orden_id, cantidad")
-      .in("orden_id", orderIds);
-
-    if (detailsError) {
-      return NextResponse.json({ error: detailsError.message }, { status: 500 });
-    }
-
-    quantitiesByOrder = details.reduce((acc, detail) => {
-      const current = acc.get(detail.orden_id) || 0;
-      acc.set(detail.orden_id, current + Number(detail.cantidad || 0));
-      return acc;
-    }, new Map());
-  }
-
-  return NextResponse.json({
-    orders: orders.map(order => ({
-      id: order.id,
-      total: Number(order.total || 0),
-      estado: order.estado,
-      creado_en: order.creado_en,
-      cantidad_productos: quantitiesByOrder.get(order.id) || 0,
+  const preferencePayload = {
+    items: orderItems.map(item => ({
+      id: String(item.producto_id),
+      title: item.nombre_producto,
+      quantity: item.cantidad,
+      unit_price: item.precio_unitario,
+      currency_id: "ARS",
     })),
+    payer: {
+      email: profile?.email || user.email,
+      name: profile?.nombre || undefined,
+      phone: profile?.telefono
+        ? {
+            number: profile.telefono,
+          }
+        : undefined,
+    },
+    external_reference: externalReference,
+    notification_url: `${siteUrl}/api/mercadopago/webhook`,
+    back_urls: {
+      success: `${siteUrl}/checkout?mp=success&external_reference=${externalReference}`,
+      failure: `${siteUrl}/checkout?mp=failure&external_reference=${externalReference}`,
+      pending: `${siteUrl}/checkout?mp=pending&external_reference=${externalReference}`,
+    },
+    auto_return: "approved",
+    metadata: {
+      external_reference: externalReference,
+    },
+  };
+
+  const response = await fetch(`${MERCADO_PAGO_API}/checkout/preferences`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(preferencePayload),
   });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || data.error || "No pudimos crear la preferencia de Mercado Pago.");
+  }
+
+  return data;
 }
 
 export async function POST(request) {
@@ -124,14 +140,6 @@ export async function POST(request) {
   }
 
   const body = await request.json().catch(() => null);
-
-  if (body?.paymentMethod === MERCADO_PAGO) {
-    return NextResponse.json(
-      { error: "Mercado Pago debe usar /api/mercadopago/preferencia." },
-      { status: 400 }
-    );
-  }
-
   const { items, hasInvalidItems } = normalizeItems(body?.items);
   const checkoutData = body?.checkoutData || {};
 
@@ -149,20 +157,20 @@ export async function POST(request) {
   const productIds = [...new Set(items.map(item => item.producto_id))];
   const { data: products, error: productsError } = await supabase
     .from("productos")
-    .select("id, nombre, precio, stock")
-    .in("id", productIds);
+    .select("id, nombre, precio, stock, activo")
+    .in("id", productIds)
+    .eq("activo", true);
 
   if (productsError) {
     return NextResponse.json({ error: productsError.message }, { status: 500 });
   }
 
   if (!products || products.length !== productIds.length) {
-    return NextResponse.json({ error: "Hay productos del carrito que ya no existen." }, { status: 400 });
+    return NextResponse.json({ error: "Hay productos del carrito que ya no están disponibles." }, { status: 400 });
   }
 
   const productsById = new Map(products.map(product => [Number(product.id), product]));
   const orderItems = [];
-  const stockUpdates = [];
   let total = 0;
 
   for (const item of items) {
@@ -175,14 +183,6 @@ export async function POST(request) {
         { error: `No hay stock suficiente para ${product.nombre}.` },
         { status: 400 }
       );
-    }
-
-    if (stock !== null) {
-      stockUpdates.push({
-        id: item.producto_id,
-        previousStock: stock,
-        nextStock: stock - item.cantidad,
-      });
     }
 
     const subtotal = price * item.cantidad;
@@ -203,6 +203,22 @@ export async function POST(request) {
     .eq("id", user.id)
     .maybeSingle();
 
+  const externalReference = crypto.randomUUID();
+
+  let preference;
+
+  try {
+    preference = await createMercadoPagoPreference({
+      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+      externalReference,
+      orderItems,
+      profile,
+      user,
+    });
+  } catch (preferenceError) {
+    return NextResponse.json({ error: preferenceError.message }, { status: 500 });
+  }
+
   const { data: order, error: orderError } = await supabase
     .from("ordenes")
     .insert({
@@ -212,8 +228,10 @@ export async function POST(request) {
       telefono: profile?.telefono || checkoutData.telefono || "",
       direccion_envio: profile?.direccion || checkoutData.direccion_envio || "",
       total,
-      estado: "pendiente_pago",
-      metodo_pago: BANK_TRANSFER,
+      estado: ORDER_STATUS,
+      metodo_pago: MERCADO_PAGO,
+      external_reference: externalReference,
+      mp_preference_id: preference.id,
     })
     .select("id")
     .single();
@@ -233,29 +251,15 @@ export async function POST(request) {
     return NextResponse.json({ error: detailsError.message }, { status: 500 });
   }
 
-  for (const stockUpdate of stockUpdates) {
-    const { data: updatedProduct, error: stockError } = await supabase
-      .from("productos")
-      .update({ stock: stockUpdate.nextStock })
-      .eq("id", stockUpdate.id)
-      .eq("stock", stockUpdate.previousStock)
-      .select("id")
-      .maybeSingle();
-
-    if (stockError) {
-      return NextResponse.json({ error: stockError.message }, { status: 500 });
-    }
-
-    if (!updatedProduct) {
-      return NextResponse.json(
-        { error: "El stock cambió durante la compra. Volvé a intentar." },
-        { status: 409 }
-      );
-    }
-  }
-
   return NextResponse.json(
-    { orderId: order.id, total, estado: "pendiente_pago" },
+    {
+      orderId: order.id,
+      preferenceId: preference.id,
+      initPoint: preference.init_point || preference.sandbox_init_point,
+      externalReference,
+      total,
+      estado: ORDER_STATUS,
+    },
     { status: 201 }
   );
 }

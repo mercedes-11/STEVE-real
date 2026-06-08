@@ -75,7 +75,10 @@ export default function CheckoutPage() {
         return;
       }
 
-      const response = await fetch("/api/ordenes", {
+      const endpoint =
+        paymentMethod === MERCADO_PAGO ? "/api/mercadopago/preferencia" : "/api/ordenes";
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -100,6 +103,15 @@ export default function CheckoutPage() {
 
       if (!response.ok) {
         throw new Error(data.error || "No pudimos crear tu pedido.");
+      }
+
+      if (paymentMethod === MERCADO_PAGO) {
+        if (!data.initPoint) {
+          throw new Error("Mercado Pago no devolvió una URL de pago.");
+        }
+
+        window.location.assign(data.initPoint);
+        return;
       }
 
       setSuccessOrderId(data.orderId);
@@ -237,8 +249,8 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <div className="mp-details">
-                  <p>Esta opción queda preparada para integrar Mercado Pago.</p>
-                  <p>No se procesará ningún pago real desde esta pantalla.</p>
+                  <p>Te vamos a redirigir al Checkout Pro de Mercado Pago.</p>
+                  <p>El stock se descuenta únicamente cuando Mercado Pago confirma el pago aprobado.</p>
                 </div>
               )}
 
@@ -256,7 +268,13 @@ export default function CheckoutPage() {
                 onClick={handleConfirmOrder}
                 disabled={orderLoading}
               >
-                {orderLoading ? "Confirmando..." : "Confirmar pedido"}
+                {orderLoading
+                  ? paymentMethod === MERCADO_PAGO
+                    ? "Preparando pago..."
+                    : "Confirmando..."
+                  : paymentMethod === MERCADO_PAGO
+                    ? "Pagar con Mercado Pago"
+                    : "Confirmar pedido"}
               </button>
             </section>
           </aside>
