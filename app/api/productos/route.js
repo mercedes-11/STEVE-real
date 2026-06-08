@@ -13,6 +13,7 @@ function normalizeProduct(product) {
     category: product.categoria,
     description: product.descripcion,
     stock: product.stock == null ? null : Number(product.stock),
+    active: Boolean(product.activo),
   };
 }
 
@@ -24,7 +25,8 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("productos")
-    .select("id, nombre, precio, imagen_url, categoria, descripcion, stock")
+    .select("id, nombre, precio, imagen_url, categoria, descripcion, stock, activo")
+    .eq("activo", true)
     .order("id", { ascending: true });
 
   if (error) {

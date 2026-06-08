@@ -1,12 +1,64 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart } from "./Cart";
 import { useAuth } from "@/lib/useAuth";
+import { supabase } from "@/lib/supabase";
 
 export default function Header() {
   const { cartItemsCount } = useCart();
   const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function checkAdmin() {
+      setIsAdmin(false);
+
+      if (!user) {
+        return;
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/admin/me", {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+
+        if (isMounted) {
+          setIsAdmin(Boolean(data.isAdmin));
+        }
+      } catch {
+        if (isMounted) {
+          setIsAdmin(false);
+        }
+      }
+    }
+
+    checkAdmin();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   return (
     <header className="site-header">
@@ -39,9 +91,16 @@ export default function Header() {
 
         <div className="header-actions" aria-label="Acciones del usuario">
           {user ? (
-            <Link href="/perfil" className="header-actions__link">
-              Mi cuenta
-            </Link>
+            <>
+              {isAdmin && (
+                <Link href="/admin" className="header-actions__link">
+                  Panel admin
+                </Link>
+              )}
+              <Link href="/perfil" className="header-actions__link">
+                Mi cuenta
+              </Link>
+            </>
           ) : (
             <Link href="/login" className="header-actions__link">
               Iniciar sesión
