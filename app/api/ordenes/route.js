@@ -242,7 +242,7 @@ export async function POST(request) {
 
     if (!updatedProduct) {
       return NextResponse.json(
-        { error: "El stock cambio durante la compra. Volve a intentar." },
+        { error: "El stock cambió durante la compra. Volvé a intentar." },
         { status: 409 }
       );
     }

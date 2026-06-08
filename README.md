@@ -1,143 +1,128 @@
 # Islabonita
 
-E-commerce de piezas knitted desarrollado con Next.js, React y Supabase. El proyecto incluye catálogo, autenticación, perfil de usuario, carrito, checkout, historial de órdenes y API Routes internas para productos, carrito y órdenes.
+E-commerce de piezas knitted desarrollado con Next.js, React y Supabase. El proyecto incluye landing, catálogo, detalle de producto, autenticación, perfil, carrito, checkout, historial de órdenes y panel admin para gestión de productos.
+
+## URL pública
+
+- Producción en Vercel: completar con la URL pública final del proyecto.
+- Deploy automático: Vercel conectado al repositorio.
+- Preview por PR: Vercel genera previews para pull requests cuando el repositorio está conectado.
+
+> No se incluyen claves reales ni datos sensibles en este repositorio.
 
 ## Stack tecnológico
 
 - Next.js 14 con App Router
 - React 18
+- JavaScript
 - Supabase Auth
 - Supabase Database
 - Supabase JS SDK
+- API Routes de Next.js
 - CSS global propio
-- JavaScript
+- Vercel para deploy
+- GitHub Actions para CI
 
 ## Funcionalidades actuales
 
-- Landing responsive con selección de productos.
-- Catálogo de productos desde Supabase.
-- Detalle de producto desde API interna.
-- Registro de usuarios con Supabase Auth.
-- Inserción de perfil en `public.usuarios`.
+- Landing responsive con productos destacados.
+- Catálogo desde `GET /api/productos`.
+- Detalle desde `GET /api/productos/[id]`.
+- Registro con Supabase Auth e inserción de perfil en `public.usuarios`.
 - Login y cierre de sesión.
-- Página `/perfil` con datos del usuario.
+- Página `/perfil` con datos del usuario autenticado.
 - Carrito local con React Context y `localStorage`.
 - Sincronización mínima del carrito con `public.carrito` cuando el usuario está logueado.
-- Checkout visual con transferencia bancaria y opción visual preparada para Mercado Pago.
+- Checkout con transferencia bancaria y opción visual preparada para Mercado Pago.
 - Creación de órdenes desde `POST /api/ordenes`.
-- Validación server-side de items, productos, stock y total.
+- Validación server-side de productos, cantidades, stock y total.
 - Descuento de stock desde servidor.
-- Historial de órdenes en `/ordenes`.
+- Historial de compras en `/ordenes`.
+- Panel admin protegido por tabla `public.admins`.
+- CRUD admin de productos: listar, crear, editar, modificar stock y desactivar.
+- Catálogo público filtrado por productos activos.
+
+## Estado de Mercado Pago
+
+Mercado Pago real todavía no está implementado. La opción existe en checkout como alternativa visual/preparada, pero no genera preferencia, no procesa pagos reales y no recibe webhooks.
+
+Pendiente para completar E6 Excelente:
+
+- Crear preferencia real de Mercado Pago desde servidor.
+- Redirigir al checkout real de Mercado Pago.
+- Crear webhook para actualizar estados de órdenes.
+- Probar pagos aprobados, rechazados y pendientes.
+- Documentar credenciales de entorno sin valores reales.
 
 ## Arquitectura general
 
-La aplicación usa el App Router de Next.js. Las páginas principales viven en `app/`, los componentes reutilizables en `components/`, las utilidades compartidas en `lib/` y los assets estáticos en `public/assets/`.
+La aplicación usa App Router. Las páginas viven en `app/`, los componentes reutilizables en `components/`, las utilidades compartidas en `lib/`, los assets en `public/assets/` y las API Routes en `app/api/`.
 
-El frontend consume API Routes internas para los flujos principales del desafío:
-
-- Productos: `GET /api/productos` y `GET /api/productos/[id]`
-- Carrito: `POST /api/carrito`
-- Órdenes: `GET /api/ordenes` y `POST /api/ordenes`
-
-La autenticación se maneja con Supabase Auth. Las API Routes protegidas reciben el token de sesión como Bearer token y operan con la anon key, respetando RLS. No se usa `service_role` en el cliente ni en las API Routes actuales.
+El frontend consume API Routes internas para los flujos principales. Las rutas protegidas reciben el access token de Supabase como Bearer token y operan con la anon key, respetando RLS. No se usa `service_role`.
 
 ## Estructura de carpetas
 
 ```txt
 app/
   api/
+    admin/
     carrito/
     ordenes/
     productos/
-  auth/
+  admin/
   carrito/
   checkout/
   login/
   ordenes/
   perfil/
   productos/
-  register/
 components/
 lib/
 data/
 public/assets/
+.github/workflows/
 ```
+
+`data/products.js` queda como respaldo legacy. El flujo principal de home, catálogo y detalle lee desde API/Supabase.
 
 ## Rutas principales
 
-- `/`: landing y productos destacados.
-- `/productos`: catálogo desde Supabase.
-- `/productos/[id]`: detalle de producto desde API interna.
+- `/`: landing con productos destacados desde API.
+- `/productos`: catálogo público.
+- `/productos/[id]`: detalle de producto activo.
 - `/login`: inicio de sesión.
 - `/register`: registro.
 - `/perfil`: perfil del usuario autenticado.
-- `/carrito`: carrito local.
+- `/carrito`: carrito.
 - `/checkout`: checkout.
 - `/ordenes`: historial de compras del usuario.
-- `/supabase-test`: página auxiliar de prueba de conexión.
+- `/admin`: acceso al panel admin.
+- `/admin/productos`: CRUD de productos para administradores.
 
 ## API Routes implementadas
 
-### `GET /api/productos`
+### Públicas
 
-Lee productos desde `public.productos` y devuelve datos normalizados para el frontend:
+- `GET /api/productos`: lista productos activos desde `public.productos`.
+- `GET /api/productos/[id]`: obtiene un producto activo por id.
 
-```txt
-id, name, price, image, category, description, stock
-```
+### Protegidas para usuario autenticado
 
-### `GET /api/productos/[id]`
+- `POST /api/carrito`: valida producto, cantidad y stock; inserta o incrementa en `public.carrito`.
+- `POST /api/ordenes`: valida sesión, productos, cantidades y stock; calcula total en servidor; crea orden y detalle; descuenta stock.
+- `GET /api/ordenes`: devuelve únicamente órdenes del usuario autenticado.
 
-Lee un producto por id desde `public.productos` y devuelve el mismo formato normalizado.
+### Protegidas para admin
 
-### `POST /api/carrito`
-
-Requiere Bearer token. Recibe:
-
-```json
-{
-  "producto_id": 1,
-  "cantidad": 1
-}
-```
-
-Valida producto, cantidad y stock. Inserta o incrementa cantidad en `public.carrito`.
-
-### `POST /api/ordenes`
-
-Requiere Bearer token. Recibe items del carrito y datos del checkout. No confía en precios ni totales enviados por el cliente.
-
-Responsabilidades:
-
-- verificar usuario autenticado
-- validar items
-- buscar productos reales en Supabase
-- verificar stock
-- calcular total en servidor
-- crear fila en `public.ordenes`
-- crear filas en `public.detalle_ordenes`
-- descontar stock
-
-Estados actuales:
-
-- `pendiente_pago`
-- `pendiente_pago_mp`
-
-### `GET /api/ordenes`
-
-Requiere Bearer token. Devuelve únicamente órdenes del usuario autenticado:
-
-```txt
-id, total, estado, creado_en, cantidad_productos
-```
+- `GET /api/admin/me`: verifica si el usuario autenticado existe en `public.admins`.
+- `GET /api/admin/productos`: lista todos los productos, activos e inactivos.
+- `POST /api/admin/productos`: crea producto.
+- `PUT /api/admin/productos/[id]`: edita producto.
+- `DELETE /api/admin/productos/[id]`: no borra físicamente; desactiva con `activo = false`.
 
 ## Modelo de datos Supabase
 
-Tablas usadas por la aplicación:
-
 ### `productos`
-
-Campos esperados:
 
 - `id`
 - `nombre`
@@ -146,10 +131,9 @@ Campos esperados:
 - `categoria`
 - `descripcion`
 - `stock`
+- `activo`
 
 ### `usuarios`
-
-Campos esperados:
 
 - `id`
 - `email`
@@ -158,9 +142,14 @@ Campos esperados:
 - `direccion`
 - `telefono`
 
-### `carrito`
+### `admins`
 
-Campos esperados:
+- `usuario_id`
+- `creado_en`
+
+Esta tabla identifica administradores sin hardcodear emails ni usar `service_role`.
+
+### `carrito`
 
 - `id`
 - `usuario_id`
@@ -168,8 +157,6 @@ Campos esperados:
 - `cantidad`
 
 ### `ordenes`
-
-Campos esperados:
 
 - `id`
 - `usuario_id`
@@ -184,8 +171,6 @@ Campos esperados:
 
 ### `detalle_ordenes`
 
-Campos esperados:
-
 - `id`
 - `orden_id`
 - `producto_id`
@@ -195,16 +180,44 @@ Campos esperados:
 - `subtotal`
 - `creado_en`
 
+## RLS y permisos esperados
+
+RLS debe permanecer activo. Las policies esperadas son:
+
+- Usuarios pueden insertar y ver su propio perfil en `usuarios`.
+- Usuarios pueden crear y ver sus propias órdenes en `ordenes`.
+- Usuarios pueden insertar y ver detalles asociados a sus propias órdenes en `detalle_ordenes`.
+- Usuarios autenticados pueden sincronizar su propio carrito en `carrito`.
+- El catálogo público puede leer productos activos.
+- Solo usuarios presentes en `admins` pueden crear, editar o desactivar productos.
+- Usuarios comunes no pueden crear ni editar productos.
+
+## Cómo crear un admin
+
+1. Ir a Supabase Dashboard.
+2. Entrar en Authentication -> Users.
+3. Copiar el `user_id` del usuario que debe ser admin.
+4. Ejecutar en SQL Editor:
+
+```sql
+insert into public.admins (usuario_id)
+values ('PEGAR_USER_ID_AQUI')
+on conflict (usuario_id) do nothing;
+```
+
+5. Verificar en Table Editor -> `admins` que el usuario quedó insertado.
+6. Iniciar sesión en la app y entrar a `/admin`.
+
 ## Variables de entorno
 
-Crear un archivo `.env.local` con:
+Crear `.env.local` para desarrollo:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-No incluir claves reales en el repositorio.
+En Vercel configurar las mismas variables en Project Settings -> Environment Variables.
 
 ## Instalación
 
@@ -212,7 +225,7 @@ No incluir claves reales en el repositorio.
 npm install
 ```
 
-## Correr localmente
+## Desarrollo local
 
 ```bash
 npm run dev
@@ -230,31 +243,55 @@ http://localhost:3000
 npm run build
 ```
 
-## Scripts disponibles
+## CI/CD
 
-```json
-{
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start"
-}
-```
+El repositorio incluye GitHub Actions en `.github/workflows/ci.yml`.
 
-Actualmente no hay script de lint ni test configurado.
+El pipeline corre en push y pull request:
+
+1. Checkout del repositorio.
+2. Setup de Node.js 20.
+3. `npm install`.
+4. `npm run build`.
+
+El build usa secrets de GitHub:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+Para verificar CI:
+
+1. Hacer push a una rama.
+2. Abrir GitHub -> Actions.
+3. Verificar que el workflow `CI` termine en verde.
+
+## Deploy en Vercel
+
+El proyecto despliega en Vercel como aplicación Next.js sin necesidad de `vercel.json`.
+
+Checklist de deploy:
+
+- Repo conectado a Vercel.
+- Variables de Supabase configuradas.
+- Build remoto exitoso.
+- URL pública accesible.
+- Preview por PR habilitado desde la integración Vercel/GitHub.
 
 ## Checklist de pruebas manuales
 
-### Catálogo
+### Catálogo desde Supabase/API
 
-- Abrir `/api/productos` y verificar productos desde Supabase.
-- Abrir `/productos` y verificar que coincida con Supabase.
+- Abrir `/api/productos`.
+- Confirmar que devuelve productos activos desde Supabase.
+- Abrir `/productos`.
+- Confirmar que coincide con la API.
 - Abrir `/api/productos/1`.
 - Abrir `/productos/1`.
-- Cambiar un precio en Supabase y verificar que se refleje al refrescar.
+- Desactivar un producto desde admin y confirmar que no aparece en catálogo público.
 
-### Autenticación
+### Registro y login
 
-- Registrar usuario nuevo.
+- Registrar un usuario nuevo.
 - Confirmar que aparece en Supabase Auth.
 - Confirmar que aparece en `public.usuarios`.
 - Iniciar sesión.
@@ -264,7 +301,7 @@ Actualmente no hay script de lint ni test configurado.
 
 - Abrir `/perfil` con sesión activa.
 - Verificar nombre, apellido, email, dirección y teléfono.
-- Intentar abrir `/perfil` sin sesión.
+- Cerrar sesión y confirmar que no se muestran datos privados.
 
 ### Carrito
 
@@ -275,86 +312,97 @@ Actualmente no hay script de lint ni test configurado.
 - Aumentar cantidad.
 - Disminuir cantidad.
 - Eliminar producto.
-- Probar carrito sin sesión y verificar persistencia local.
-- Probar carrito con sesión y verificar `public.carrito`.
+- Probar sin sesión y confirmar persistencia local.
+- Probar con sesión y verificar sincronización en `public.carrito`.
 
-### Checkout
+### Checkout y stock
 
 - Agregar productos al carrito.
-- Abrir `/checkout`.
+- Abrir `/checkout` con usuario logueado.
 - Confirmar pedido con transferencia.
 - Confirmar pedido con Mercado Pago visual.
 - Verificar fila en `public.ordenes`.
 - Verificar filas en `public.detalle_ordenes`.
-- Verificar descuento de stock.
-- Intentar comprar más que el stock disponible.
+- Verificar que baja `productos.stock`.
+- Intentar comprar más que el stock disponible y confirmar error claro.
 
 ### Órdenes
 
 - Abrir `/ordenes` con sesión.
-- Verificar número de orden, fecha, estado, productos y total.
-- Cerrar sesión y verificar que `/ordenes` solicita iniciar sesión.
-- Probar con otro usuario y verificar que no ve órdenes ajenas.
+- Verificar número de orden, fecha, estado, cantidad de productos y total.
+- Probar con otro usuario y confirmar que no ve órdenes ajenas.
+- Cerrar sesión y confirmar que `/ordenes` solicita iniciar sesión.
+
+### Admin con permisos
+
+- Iniciar sesión con un usuario cargado en `public.admins`.
+- Verificar que el header muestra `Panel admin`.
+- Entrar a `/admin`.
+- Entrar a `/admin/productos`.
+- Crear un producto.
+- Editar nombre, precio, categoría, descripción, imagen, stock y activo.
+- Desactivar un producto.
+- Confirmar que productos inactivos no aparecen en `/productos`.
+- Usar `Vista cliente` para volver al catálogo público.
+
+### Usuario común sin permisos
+
+- Iniciar sesión con un usuario no cargado en `public.admins`.
+- Verificar que el header no muestra `Panel admin`.
+- Intentar abrir `/admin`.
+- Confirmar mensaje `No autorizado`.
+- Intentar abrir `/admin/productos`.
+- Confirmar que no puede acceder ni modificar productos.
+
+### CI y deploy
+
+- Hacer push a una rama.
+- Confirmar GitHub Actions en verde.
+- Abrir el preview de Vercel si es un pull request.
+- Validar rutas principales en producción:
+  - `/`
+  - `/productos`
+  - `/productos/[id]`
+  - `/login`
+  - `/register`
+  - `/perfil`
+  - `/carrito`
+  - `/checkout`
+  - `/ordenes`
+  - `/admin`
+  - `/api/productos`
+
+## Scripts disponibles
+
+```json
+{
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start"
+}
+```
+
+Actualmente no hay scripts de lint ni test configurados.
 
 ## Estado actual del proyecto
 
 Implementado:
 
-- Landing y vistas principales.
-- Catálogo desde Supabase.
-- API Routes para productos, carrito y órdenes.
+- Deploy en Vercel.
+- CI con GitHub Actions.
+- Catálogo y detalle desde API/Supabase.
 - Auth con Supabase.
-- Perfil de usuario.
-- Checkout con validación server-side.
+- Perfil.
+- Carrito local y sincronización mínima con API.
+- Checkout con validación server-side y descuento de stock.
 - Historial de órdenes.
-- Stock validado y descontado desde servidor.
+- Admin CRUD con tabla `admins`.
+- Productos activos/inactivos.
 
-Pendiente para nivel Excelente:
+Pendiente para cerrar Excelente global:
 
-- Deploy público estable.
-- Pipeline CI/CD.
-- Preview por PR.
 - Integración real de Mercado Pago.
 - Webhook de Mercado Pago.
-- Panel admin funcional.
-- Tests automatizados o evidencia formal de pruebas.
-- Documentación final de RLS y políticas.
-
-## Preparación para despliegue
-
-El proyecto está preparado para desplegarse en una plataforma compatible con Next.js, como Vercel.
-
-Para completar despliegue excelente falta:
-
-- crear proyecto en Vercel
-- configurar variables de entorno
-- verificar build remoto
-- configurar dominio o URL pública estable
-- documentar URL pública
-- validar rutas principales en producción
-- habilitar preview por PR
-
-## Preparación para CI/CD
-
-Actualmente no existe configuración de GitHub Actions ni otro pipeline en el repositorio.
-
-Para completar CI/CD excelente falta:
-
-- agregar workflow de CI
-- ejecutar `npm install` o `npm ci`
-- ejecutar `npm run build`
-- agregar lint cuando esté configurado
-- agregar tests cuando estén configurados
-- verificar checks en pull requests
-- documentar el flujo de PR y preview
-
-## Próximos pasos
-
-1. Configurar deploy público estable.
-2. Configurar GitHub Actions para CI.
-3. Agregar preview por PR.
-4. Implementar Mercado Pago real.
-5. Implementar webhook de Mercado Pago.
-6. Crear panel admin con CRUD de productos y stock.
-7. Agregar pruebas automatizadas o checklist formal versionado.
-8. Documentar RLS, políticas y modelo de datos final.
+- Evidencia final de pruebas de pago.
+- Completar en este README la URL pública final de Vercel.
+- Opcional: agregar lint/tests automatizados.
