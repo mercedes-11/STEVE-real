@@ -21,6 +21,17 @@ export default function CheckoutPage() {
   const [orderLoading, setOrderLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successOrderId, setSuccessOrderId] = useState(null);
+  const [paymentReturnStatus, setPaymentReturnStatus] = useState(null);
+  const hasSuccessfulOrder = Boolean(successOrderId) || paymentReturnStatus === "success";
+
+  useEffect(() => {
+    const mpStatus = new URLSearchParams(window.location.search).get("mp");
+
+    if (mpStatus === "success") {
+      setPaymentReturnStatus(mpStatus);
+      clearCart();
+    }
+  }, []);
 
   useEffect(() => {
     if (authLoading) return;
@@ -142,6 +153,20 @@ export default function CheckoutPage() {
     return null;
   }
 
+  if (hasSuccessfulOrder) {
+    return (
+      <main className="checkout-page">
+        <section className="container checkout-shell">
+          <p className="checkout-eyebrow">Checkout</p>
+          <h1 className="checkout-title">Pedido realizado correctamente</h1>
+          <Link href="/productos" className="checkout-link">
+            Ver productos
+          </Link>
+        </section>
+      </main>
+    );
+  }
+
   if (!cart.length) {
     return (
       <main className="checkout-page">
@@ -251,7 +276,6 @@ export default function CheckoutPage() {
               ) : (
                 <div className="mp-details">
                   <p>Te vamos a redirigir al Checkout Pro de Mercado Pago.</p>
-                  <p>El stock se descuenta únicamente cuando Mercado Pago confirma el pago aprobado.</p>
                 </div>
               )}
 
