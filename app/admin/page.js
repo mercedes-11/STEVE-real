@@ -4,6 +4,21 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
+const adminSections = [
+  {
+    title: "Productos",
+    description: "Crear, editar, controlar stock y desactivar productos del catálogo.",
+    href: "/admin/productos",
+    action: "Ingresar a productos",
+  },
+  {
+    title: "Órdenes",
+    description: "Revisar pedidos, ver productos comprados y actualizar datos de entrega.",
+    href: "/admin/ordenes",
+    action: "Ingresar a órdenes",
+  },
+];
+
 export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -76,18 +91,28 @@ export default function AdminPage() {
   return (
     <main className="admin-page">
       <section className="admin-panel container">
-        <div className="admin-heading">
-          <p className="admin-eyebrow">Admin</p>
-          <h1 className="admin-title">Panel de administración</h1>
+        <div className="admin-heading admin-heading--split">
+          <div>
+            <p className="admin-eyebrow">Admin</p>
+            <h1 className="admin-title">Panel de administración</h1>
+          </div>
+          <Link href="/productos" className="admin-link admin-link--secondary">
+            Volver a vista cliente
+          </Link>
         </div>
 
-        <div className="admin-actions">
-          <Link href="/admin/productos" className="admin-link">
-            Gestionar productos
-          </Link>
-          <Link href="/productos" className="admin-link admin-link--secondary">
-            Vista cliente
-          </Link>
+        <div className="admin-dashboard-grid">
+          {adminSections.map(section => (
+            <article key={section.href} className="admin-dashboard-card">
+              <div>
+                <h2>{section.title}</h2>
+                <p>{section.description}</p>
+              </div>
+              <Link href={section.href} className="admin-link">
+                {section.action}
+              </Link>
+            </article>
+          ))}
         </div>
       </section>
     </main>

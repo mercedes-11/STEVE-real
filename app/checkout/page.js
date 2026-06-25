@@ -14,7 +14,7 @@ const MERCADO_PAGO = "mercado_pago";
 export default function CheckoutPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const { cart, cartTotal } = useCart();
+  const { cart, cartTotal, clearCart } = useCart();
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState(BANK_TRANSFER);
@@ -50,6 +50,10 @@ export default function CheckoutPage() {
   }, [authLoading, router, user]);
 
   const handleConfirmOrder = async () => {
+    if (orderLoading) {
+      return;
+    }
+
     setError(null);
     setSuccessOrderId(null);
 
@@ -115,6 +119,7 @@ export default function CheckoutPage() {
       }
 
       setSuccessOrderId(data.orderId);
+      clearCart();
     } catch (orderError) {
       setError(orderError.message || "No pudimos crear tu pedido.");
     } finally {
@@ -239,12 +244,8 @@ export default function CheckoutPage() {
 
               {paymentMethod === BANK_TRANSFER ? (
                 <div className="bank-details">
-                  <p>Banco: XXXXX</p>
-                  <p>Alias: XXXXX</p>
-                  <p>CBU: XXXXX</p>
-                  <p>Titular: XXXXX</p>
                   <p className="bank-details__note">
-                    Una vez realizada la transferencia, envianos el comprobante para confirmar tu pedido.
+                    Coordinaremos los datos de transferencia por email/WhatsApp luego de confirmar el pedido.
                   </p>
                 </div>
               ) : (
