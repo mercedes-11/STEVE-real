@@ -143,6 +143,12 @@ export function CartProvider({ children }) {
 
   function clearCart() {
     setCart([]);
+
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error("No se pudo vaciar el carrito:", error);
+    }
   }
 
   return (
