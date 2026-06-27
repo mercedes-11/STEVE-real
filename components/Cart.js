@@ -191,45 +191,75 @@ export default function Cart() {
     return (
       <div className="cart-page__empty">
         <p>Tu carrito está vacío.</p>
+        <button type="button" className="cart-empty-link" onClick={() => router.push("/productos")}>
+          Ver productos
+        </button>
       </div>
     );
   }
 
   return (
     <div className="cart-page__content">
-      {cart.map(item => (
-        <article key={item.id} className="cart-item">
-          <div className="cart-item__info">
-            <h3>{item.name}</h3>
-            <p>{formatPrice(item.price)}</p>
-          </div>
+      <section className="cart-items-panel" aria-label="Productos en el carrito">
+        <div className="cart-section-heading">
+          <p className="cart-section-kicker">Carrito</p>
+          <h2>Sus selecciones</h2>
+        </div>
 
-          <div className="cart-item__controls">
-            <button type="button" className="cart-qty-btn" onClick={() => decreaseQuantity(item.id)}>
-              -
-            </button>
-            <span className="cart-item__quantity">{item.quantity}</span>
-            <button type="button" className="cart-qty-btn" onClick={() => increaseQuantity(item.id)}>
-              +
-            </button>
-          </div>
+        <div className="cart-items-list">
+          {cart.map(item => (
+            <article key={item.id} className={item.image ? "cart-item" : "cart-item cart-item--no-media"}>
+              {item.image && (
+                <div className="cart-item__media">
+                  <img src={item.image} alt={item.name} />
+                </div>
+              )}
 
-          <div className="cart-item__subtotal">{formatPrice(item.price * item.quantity)}</div>
+              <div className="cart-item__info">
+                <h3>{item.name}</h3>
+                <p>{formatPrice(item.price)}</p>
+              </div>
 
-          <button type="button" className="cart-remove-btn" onClick={() => removeFromCart(item.id)}>
-            Eliminar
-          </button>
-        </article>
-      ))}
+              <div className="cart-item__controls" aria-label={`Cantidad de ${item.name}`}>
+                <button type="button" className="cart-qty-btn" onClick={() => decreaseQuantity(item.id)}>
+                  -
+                </button>
+                <span className="cart-item__quantity">{item.quantity}</span>
+                <button type="button" className="cart-qty-btn" onClick={() => increaseQuantity(item.id)}>
+                  +
+                </button>
+              </div>
 
-      <div className="cart-summary">
-        <span>Total</span>
-        <strong>{formatPrice(cartTotal)}</strong>
-      </div>
+              <div className="cart-item__subtotal">
+                <span>Subtotal</span>
+                <strong>{formatPrice(item.price * item.quantity)}</strong>
+              </div>
 
-      <button type="button" className="cart-checkout" onClick={handleCheckout}>
-        Finalizar compra
-      </button>
+              <button type="button" className="cart-remove-btn" onClick={() => removeFromCart(item.id)}>
+                Eliminar
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <aside className="cart-summary-panel" aria-label="Resumen del pedido">
+        <h2>Resumen del pedido</h2>
+
+        <div className="cart-summary-row">
+          <span>Subtotal</span>
+          <strong>{formatPrice(cartTotal)}</strong>
+        </div>
+
+        <div className="cart-summary cart-summary--total">
+          <span>Total estimado</span>
+          <strong>{formatPrice(cartTotal)}</strong>
+        </div>
+
+        <button type="button" className="cart-checkout" onClick={handleCheckout}>
+          Finalizar compra
+        </button>
+      </aside>
     </div>
   );
 }
