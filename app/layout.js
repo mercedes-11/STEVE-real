@@ -31,43 +31,18 @@ export default function RootLayout({ children }) {
               </div>
 
               <div className="footer-links">
-                <h3>Categorías</h3>
+                <h3>Navegación</h3>
                 <ul>
                   <li>
-                    <Link href="/productos">Productos</Link>
+                    <Link href="/">Home</Link>
                   </li>
                   <li>
-                    <Link href="/productos/1">Sweaters</Link>
+                    <Link href="/productos">Productos</Link>
                   </li>
                   <li>
                     <Link href="/carrito">Carrito</Link>
                   </li>
                 </ul>
-              </div>
-
-              <div className="footer-links">
-                <h3>Ayuda</h3>
-                <ul>
-                  <li>
-                    <Link href="/productos">Envíos</Link>
-                  </li>
-                  <li>
-                    <Link href="/productos">Cambios y devoluciones</Link>
-                  </li>
-                  <li>
-                    <Link href="/productos">Preguntas frecuentes</Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="footer-newsletter">
-                <h3>Newsletter</h3>
-                <p>Suscribite para recibir novedades exclusivas</p>
-
-                <form className="newsletter-form">
-                  <input type="email" placeholder="Tu email" required />
-                  <button type="submit">Suscribirme</button>
-                </form>
               </div>
             </div>
 
