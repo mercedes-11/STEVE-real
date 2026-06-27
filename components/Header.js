@@ -77,13 +77,13 @@ export default function Header() {
         <nav className="main-nav" aria-label="Navegación principal">
           <ul className="main-nav__list">
             <li className="main-nav__item">
-              <Link href="/productos" className="main-nav__link">
-                Productos
+              <Link href="/" className="main-nav__link">
+                Home
               </Link>
             </li>
             <li className="main-nav__item">
-              <Link href="/" className="main-nav__link">
-                Home
+              <Link href="/productos" className="main-nav__link">
+                Productos
               </Link>
             </li>
           </ul>
