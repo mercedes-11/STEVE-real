@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import ProductCard from "./ProductCard";
+import { useCart } from "./Cart";
+import { formatPrice } from "@/lib/pricing";
 
 export default function ProductDetail({ productId }) {
+  const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,7 +72,25 @@ export default function ProductDetail({ productId }) {
           </div>
 
           <div className="product-detail-card">
-            <ProductCard product={product} detail />
+            <div className="product-detail-media">
+              <img src={product.image} alt={product.name} className="product-detail-image" />
+            </div>
+
+            <div className="product-detail-info">
+              <p className="product-detail-category">{product.category || "Producto"}</p>
+              <h2>{product.name}</h2>
+              <p className="product-detail-price">{formatPrice(product.price)}</p>
+              {product.description && (
+                <p className="product-detail-description">{product.description}</p>
+              )}
+              <button
+                type="button"
+                className="product-detail-add"
+                onClick={() => addToCart(product)}
+              >
+                Agregar al carrito
+              </button>
+            </div>
           </div>
         </div>
       </section>
