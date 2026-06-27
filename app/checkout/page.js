@@ -212,31 +212,6 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            <section className="checkout-section">
-              <h2>Datos de contacto</h2>
-              <dl className="checkout-profile">
-                <div>
-                  <dt>Nombre</dt>
-                  <dd>{profile?.nombre || "-"}</dd>
-                </div>
-                <div>
-                  <dt>Apellido</dt>
-                  <dd>{profile?.apellido || "-"}</dd>
-                </div>
-                <div>
-                  <dt>Email</dt>
-                  <dd>{profile?.email || user.email}</dd>
-                </div>
-                <div>
-                  <dt>Dirección</dt>
-                  <dd>{profile?.direccion || "-"}</dd>
-                </div>
-                <div>
-                  <dt>Teléfono</dt>
-                  <dd>{profile?.telefono || "-"}</dd>
-                </div>
-              </dl>
-            </section>
           </div>
 
           <aside className="checkout-side">
